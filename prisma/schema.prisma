@@ -1,0 +1,177 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Company {
+  id           String        @id @default(cuid())
+  name         String
+  clerkOrgId   String        @unique
+  plan         Plan          @default(STARTER)
+  stripeId     String?
+  users        User[]
+  courses      Course[]
+  productLines ProductLine[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model User {
+  id               String              @id @default(cuid())
+  clerkId          String              @unique
+  email            String              @unique
+  name             String
+  role             Role                @default(EMPLOYEE)
+  companyId        String
+  company          Company             @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  enrollments      Enrollment[]
+  certifications   SalesCertification[]
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+}
+
+model ProductLine {
+  id             String               @id @default(cuid())
+  name           String
+  category       ProductCategory
+  description    String?
+  companyId      String
+  company        Company              @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  courses        Course[]
+  certifications SalesCertification[]
+  updates        ProductUpdate[]
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+}
+
+model Course {
+  id            String        @id @default(cuid())
+  title         String
+  description   String?
+  thumbnailUrl  String?
+  companyId     String
+  productLineId String?
+  isPublished   Boolean       @default(false)
+  company       Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  productLine   ProductLine?  @relation(fields: [productLineId], references: [id])
+  modules       Module[]
+  enrollments   Enrollment[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model Module {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  videoUrl    String?
+  order       Int
+  isPublished Boolean  @default(false)
+  courseId    String
+  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  quizzes     Quiz[]
+  progress    ModuleProgress[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Quiz {
+  id        String       @id @default(cuid())
+  question  String
+  options   String[]
+  answer    Int
+  moduleId  String
+  module    Module       @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  createdAt DateTime     @default(now())
+}
+
+model Enrollment {
+  id          String           @id @default(cuid())
+  userId      String
+  courseId    String
+  progress    Int              @default(0)
+  completedAt DateTime?
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course      Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  moduleProgress ModuleProgress[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@unique([userId, courseId])
+}
+
+model ModuleProgress {
+  id           String     @id @default(cuid())
+  enrollmentId String
+  moduleId     String
+  completed    Boolean    @default(false)
+  score        Int?
+  completedAt  DateTime?
+  enrollment   Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  module       Module     @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  createdAt    DateTime   @default(now())
+
+  @@unique([enrollmentId, moduleId])
+}
+
+model SalesCertification {
+  id            String      @id @default(cuid())
+  userId        String
+  productLineId String
+  score         Int
+  passed        Boolean
+  certifiedAt   DateTime?
+  expiresAt     DateTime?
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productLine   ProductLine @relation(fields: [productLineId], references: [id], onDelete: Cascade)
+  createdAt     DateTime    @default(now())
+
+  @@unique([userId, productLineId])
+}
+
+model ProductUpdate {
+  id             String       @id @default(cuid())
+  title          String
+  description    String
+  urgency        Urgency      @default(NORMAL)
+  effectiveDate  DateTime
+  requiresRecert Boolean      @default(true)
+  productLineId  String
+  productLine    ProductLine  @relation(fields: [productLineId], references: [id], onDelete: Cascade)
+  createdAt      DateTime     @default(now())
+}
+
+enum Role {
+  ADMIN
+  MANAGER
+  EMPLOYEE
+}
+
+enum Plan {
+  STARTER
+  GROWTH
+  ENTERPRISE
+}
+
+enum ProductCategory {
+  FIBRA
+  MOVEL
+  TV
+  B2B
+  COMBO
+  OUTRO
+}
+
+enum Urgency {
+  URGENTE
+  SEMANA
+  EM_BREVE
+  NORMAL
+}

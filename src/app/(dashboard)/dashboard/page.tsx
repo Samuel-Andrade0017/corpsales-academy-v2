@@ -1,4 +1,5 @@
 import { auth } from '@clerk/nextjs/server'
+import { redirect } from 'next/navigation'
 import { db } from '@/lib/db'
 import { calcCompletionRate } from '@/lib/utils'
 import { StatsCards } from './_components/stats-cards'
@@ -9,12 +10,12 @@ import { ProductUpdates } from './_components/product-updates'
 
 export default async function DashboardPage() {
   const { orgId } = auth()
-  if (!orgId) return null
+  if (!orgId) redirect('/onboarding')
 
   const company = await db.company.findUnique({
     where: { clerkOrgId: orgId },
   })
-  if (!company) return null
+  if (!company) redirect('/onboarding')
 
   const [totalSellers, activeCourses, enrollments, uncertified, productUpdates] =
     await Promise.all([

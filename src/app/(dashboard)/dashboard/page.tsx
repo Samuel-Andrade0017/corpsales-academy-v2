@@ -9,18 +9,16 @@ import { AlertsTable } from './_components/alerts-table'
 import { ProductUpdates } from './_components/product-updates'
 
 export default async function DashboardPage() {
-  const { orgId, orgSlug } = auth()
-  if (!orgId) redirect('/onboarding')
+  const { userId } = auth()
+  if (!userId) redirect('/sign-in')
 
-  // Se não tem company, cria agora
-  const company = await db.company.upsert({
-    where: { clerkOrgId: orgId },
-    update: {},
-    create: {
-      clerkOrgId: orgId,
-      name: orgSlug ?? 'Minha Empresa',
-    },
+  const user = await db.user.findUnique({
+    where: { clerkId: userId },
+    include: { company: true },
   })
+
+  if (!user?.company) redirect('/onboarding')
+  const company = user.company
 
   const [totalSellers, activeCourses, enrollments, uncertified, productUpdates] =
     await Promise.all([
@@ -56,12 +54,7 @@ export default async function DashboardPage() {
           {' · '}{totalSellers} vendedores ativos
         </p>
       </div>
-      <StatsCards
-        totalSellers={totalSellers}
-        activeCourses={activeCourses}
-        completionRate={completionRate}
-        uncertifiedCount={uncertified.length}
-      />
+      <StatsCards totalSellers={totalSellers} activeCourses={activeCourses} completionRate={completionRate} uncertifiedCount={uncertified.length} />
       <div className="grid grid-cols-2 gap-6">
         <ProductBars companyId={company.id} />
         <SellerRanking companyId={company.id} />

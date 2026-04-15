@@ -1,5 +1,4 @@
 'use client'
-
 import { CreateOrganization, useOrganizationList } from '@clerk/nextjs'
 import { useEffect } from 'react'
 
@@ -11,9 +10,8 @@ export default function OnboardingPage() {
   useEffect(() => {
     if (!isLoaded || !setActive) return
     if (userMemberships?.data?.length) {
-      setActive({ organization: userMemberships.data[0].organization.id }).then(() => {
-        window.location.href = '/dashboard'
-      })
+      setActive({ organization: userMemberships.data[0].organization.id })
+        .then(() => { window.location.href = '/dashboard' })
     }
   }, [isLoaded, userMemberships?.data?.length, setActive])
 
@@ -23,13 +21,9 @@ export default function OnboardingPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center">
-      <div className="flex flex-col items-center gap-6">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold">Bem-vindo ao CorpSales Academy</h1>
-          <p className="text-muted-foreground mt-2">
-            Crie a organização da sua empresa para começar
-          </p>
-        </div>
+      <div className="flex flex-col items-center gap-6 text-center">
+        <h1 className="text-2xl font-bold">Bem-vindo ao CorpSales Academy</h1>
+        <p className="text-muted-foreground">Crie a organização da sua empresa para começar</p>
         <CreateOrganization afterCreateOrganizationUrl="/dashboard" />
       </div>
     </div>

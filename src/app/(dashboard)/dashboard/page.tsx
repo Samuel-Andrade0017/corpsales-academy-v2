@@ -9,13 +9,30 @@ import { AlertsTable } from './_components/alerts-table'
 import { ProductUpdates } from './_components/product-updates'
 
 export default async function DashboardPage() {
-  const { userId, orgId, orgSlug } = auth()
+  const { userId } = auth()
   if (!userId) redirect('/sign-in')
-  if (!orgId) redirect('/onboarding')
 
   const clerkUser = await currentUser()
   if (!clerkUser) redirect('/sign-in')
 
+  // Busca user no banco pelo clerkId
+  const dbUser = await db.user.findUnique({
+    where: { clerkId: userId },
+    include: { company: true },
+  })
+
+  // Se não tem user/company no banco, mostra mensagem em vez de redirecionar
+  if (!dbUser?.company) {
+    return (
+      <div className="p-8">
+        <h1 className="text-xl font-bold">Configurando sua conta...</h1>
+        <p className="text-muted-foreground mt-2">
+          Acesse <a href="/api/seed-company" className="underline text-blue-500">/api/seed-company</a> para inicializar, depois volte aqui.
+        </p>
+      </div>
+    )
+  }
+  
   // Garante que a company existe
   const company = await db.company.upsert({
     where: { clerkOrgId: orgId },

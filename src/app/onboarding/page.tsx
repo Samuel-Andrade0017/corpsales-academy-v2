@@ -10,12 +10,15 @@ export default function OnboardingPage() {
   const router = useRouter()
 
   useEffect(() => {
-    if (userMemberships?.data?.length && setActive) {
-      // Já tem org — ativa a primeira e vai pro dashboard
-      setActive({ organization: userMemberships.data[0].organization.id })
-        .then(() => { window.location.href = '/dashboard' })
-    }
-  }, [userMemberships?.data, setActive])
+  if (userMemberships?.data?.length && setActive) {
+    setActive({ organization: userMemberships.data[0].organization.id })
+      .then(() => {
+        setTimeout(() => {
+          window.location.href = '/dashboard'
+        }, 1000) // aguarda 1s para o Clerk atualizar o token
+      })
+  }
+}, [userMemberships?.data, setActive])
 
   // Só mostra CreateOrganization se não tiver nenhuma org
   if (userMemberships?.isLoading) return <p>Carregando...</p>

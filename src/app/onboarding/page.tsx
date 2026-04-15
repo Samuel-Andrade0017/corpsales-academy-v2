@@ -1,12 +1,25 @@
-import { auth } from '@clerk/nextjs/server'
-import { redirect } from 'next/navigation'
+'use client'
+
+import { useOrganizationList } from '@clerk/nextjs'
 import { CreateOrganization } from '@clerk/nextjs'
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 
-export default async function OnboardingPage() {
-  const { userId, orgId } = auth()
+export default function OnboardingPage() {
+  const { userMemberships, setActive } = useOrganizationList({ userMemberships: true })
+  const router = useRouter()
 
-  if (!userId) redirect('/sign-in')
-  if (orgId) redirect('/dashboard') // já tem org, vai pro dashboard
+  useEffect(() => {
+    if (userMemberships?.data?.length && setActive) {
+      // Já tem org — ativa a primeira e vai pro dashboard
+      setActive({ organization: userMemberships.data[0].organization.id })
+        .then(() => router.push('/dashboard'))
+    }
+  }, [userMemberships?.data, setActive])
+
+  // Só mostra CreateOrganization se não tiver nenhuma org
+  if (userMemberships?.isLoading) return <p>Carregando...</p>
+  if (userMemberships?.data?.length) return <p>Redirecionando...</p>
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">

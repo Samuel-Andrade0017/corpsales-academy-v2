@@ -13,7 +13,7 @@ export default function OnboardingPage() {
     if (userMemberships?.data?.length && setActive) {
       // Já tem org — ativa a primeira e vai pro dashboard
       setActive({ organization: userMemberships.data[0].organization.id })
-        .then(() => router.push('/dashboard'))
+        .then(() => { window.location.href = '/dashboard' })
     }
   }, [userMemberships?.data, setActive])
 

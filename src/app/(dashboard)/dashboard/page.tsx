@@ -1,4 +1,4 @@
-import { auth, currentUser } from '@clerk/nextjs/server'
+import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import { db } from '@/lib/db'
 import { calcCompletionRate } from '@/lib/utils'
@@ -12,49 +12,13 @@ export default async function DashboardPage() {
   const { userId } = auth()
   if (!userId) redirect('/sign-in')
 
-  const clerkUser = await currentUser()
-  if (!clerkUser) redirect('/sign-in')
-
-  // Busca user no banco pelo clerkId
   const dbUser = await db.user.findUnique({
     where: { clerkId: userId },
     include: { company: true },
   })
 
-  // Se não tem user/company no banco, mostra mensagem em vez de redirecionar
-  if (!dbUser?.company) {
-    return (
-      <div className="p-8">
-        <h1 className="text-xl font-bold">Configurando sua conta...</h1>
-        <p className="text-muted-foreground mt-2">
-          Acesse <a href="/api/seed-company" className="underline text-blue-500">/api/seed-company</a> para inicializar, depois volte aqui.
-        </p>
-      </div>
-    )
-  }
-  
-  // Garante que a company existe
-  const company = await db.company.upsert({
-    where: { clerkOrgId: orgId },
-    update: {},
-    create: {
-      clerkOrgId: orgId,
-      name: orgSlug ?? 'Minha Empresa',
-    },
-  })
-
-  // Garante que o user existe
-  await db.user.upsert({
-    where: { clerkId: userId },
-    update: {},
-    create: {
-      clerkId: userId,
-      email: clerkUser.emailAddresses[0]?.emailAddress ?? '',
-      name: `${clerkUser.firstName ?? ''} ${clerkUser.lastName ?? ''}`.trim() || 'Usuário',
-      companyId: company.id,
-      role: 'ADMIN',
-    },
-  })
+  if (!dbUser?.company) redirect('/api/seed-company')
+  const company = dbUser!.company
 
   const [totalSellers, activeCourses, enrollments, uncertified, productUpdates] =
     await Promise.all([

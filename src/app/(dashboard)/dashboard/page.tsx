@@ -1,4 +1,4 @@
-import { auth } from '@clerk/nextjs/server'
+import { auth, currentUser } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import { db } from '@/lib/db'
 import { calcCompletionRate } from '@/lib/utils'
@@ -9,16 +9,35 @@ import { AlertsTable } from './_components/alerts-table'
 import { ProductUpdates } from './_components/product-updates'
 
 export default async function DashboardPage() {
-  const { userId } = auth()
+  const { userId, orgId, orgSlug } = auth()
   if (!userId) redirect('/sign-in')
+  if (!orgId) redirect('/onboarding')
 
-  const user = await db.user.findUnique({
-    where: { clerkId: userId },
-    include: { company: true },
+  const clerkUser = await currentUser()
+  if (!clerkUser) redirect('/sign-in')
+
+  // Garante que a company existe
+  const company = await db.company.upsert({
+    where: { clerkOrgId: orgId },
+    update: {},
+    create: {
+      clerkOrgId: orgId,
+      name: orgSlug ?? 'Minha Empresa',
+    },
   })
 
-  if (!user?.company) redirect('/onboarding')
-  const company = user.company
+  // Garante que o user existe
+  await db.user.upsert({
+    where: { clerkId: userId },
+    update: {},
+    create: {
+      clerkId: userId,
+      email: clerkUser.emailAddresses[0]?.emailAddress ?? '',
+      name: `${clerkUser.firstName ?? ''} ${clerkUser.lastName ?? ''}`.trim() || 'Usuário',
+      companyId: company.id,
+      role: 'ADMIN',
+    },
+  })
 
   const [totalSellers, activeCourses, enrollments, uncertified, productUpdates] =
     await Promise.all([

@@ -9,22 +9,23 @@ import { AlertsTable } from './_components/alerts-table'
 import { ProductUpdates } from './_components/product-updates'
 
 export default async function DashboardPage() {
-  const { orgId } = auth()
+  const { orgId, orgSlug } = auth()
   if (!orgId) redirect('/onboarding')
 
-  const company = await db.company.findUnique({
+  // Se não tem company, cria agora
+  const company = await db.company.upsert({
     where: { clerkOrgId: orgId },
+    update: {},
+    create: {
+      clerkOrgId: orgId,
+      name: orgSlug ?? 'Minha Empresa',
+    },
   })
-  if (!company) redirect('/onboarding')
 
   const [totalSellers, activeCourses, enrollments, uncertified, productUpdates] =
     await Promise.all([
-      db.user.count({
-        where: { companyId: company.id, role: 'EMPLOYEE' },
-      }),
-      db.course.count({
-        where: { companyId: company.id, isPublished: true },
-      }),
+      db.user.count({ where: { companyId: company.id, role: 'EMPLOYEE' } }),
+      db.course.count({ where: { companyId: company.id, isPublished: true } }),
       db.enrollment.findMany({
         where: { user: { companyId: company.id } },
         include: { user: true, course: { include: { productLine: true } } },
@@ -55,19 +56,16 @@ export default async function DashboardPage() {
           {' · '}{totalSellers} vendedores ativos
         </p>
       </div>
-
       <StatsCards
         totalSellers={totalSellers}
         activeCourses={activeCourses}
         completionRate={completionRate}
         uncertifiedCount={uncertified.length}
       />
-
       <div className="grid grid-cols-2 gap-6">
         <ProductBars companyId={company.id} />
         <SellerRanking companyId={company.id} />
       </div>
-
       <div className="grid grid-cols-2 gap-6">
         <AlertsTable uncertified={uncertified} />
         <ProductUpdates updates={productUpdates} />

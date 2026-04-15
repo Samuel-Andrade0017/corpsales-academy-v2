@@ -1,7 +1,6 @@
 'use client'
 
-import { useOrganizationList } from '@clerk/nextjs'
-import { CreateOrganization } from '@clerk/nextjs'
+import { CreateOrganization, useOrganizationList } from '@clerk/nextjs'
 import { useEffect } from 'react'
 
 export default function OnboardingPage() {
@@ -13,19 +12,17 @@ export default function OnboardingPage() {
     if (!isLoaded || !setActive) return
     if (userMemberships?.data?.length) {
       setActive({ organization: userMemberships.data[0].organization.id }).then(() => {
-        setTimeout(() => { window.location.replace('/dashboard') }, 1500)
+        window.location.href = '/dashboard'
       })
     }
-  }, [isLoaded, userMemberships?.data?.length])
+  }, [isLoaded, userMemberships?.data?.length, setActive])
 
-  if (!isLoaded) return <p className="p-8">Carregando...</p>
-
-  if (userMemberships?.data?.length) {
+  if (!isLoaded || userMemberships?.data?.length) {
     return <p className="p-8">Redirecionando para o dashboard...</p>
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
+    <div className="min-h-screen flex items-center justify-center">
       <div className="flex flex-col items-center gap-6">
         <div className="text-center">
           <h1 className="text-2xl font-bold">Bem-vindo ao CorpSales Academy</h1>

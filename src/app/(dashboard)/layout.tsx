@@ -7,9 +7,11 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode
 }) {
-  const { userId, orgId } = auth()
+  const { userId } = auth()
   if (!userId) redirect('/sign-in')
-  if (!orgId) redirect('/onboarding')
+
+  // Removido: if (!orgId) redirect('/onboarding')
+  // O dashboard/page.tsx já trata o caso de orgId ausente
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">

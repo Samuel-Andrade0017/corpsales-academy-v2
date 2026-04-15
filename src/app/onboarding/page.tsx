@@ -3,26 +3,26 @@
 import { useOrganizationList } from '@clerk/nextjs'
 import { CreateOrganization } from '@clerk/nextjs'
 import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 
 export default function OnboardingPage() {
-  const { userMemberships, setActive } = useOrganizationList({ userMemberships: true })
-  const router = useRouter()
+  const { userMemberships, setActive, isLoaded } = useOrganizationList({
+    userMemberships: { infinite: true },
+  })
 
   useEffect(() => {
-  if (userMemberships?.data?.length && setActive) {
-    setActive({ organization: userMemberships.data[0].organization.id })
-      .then(() => {
-        setTimeout(() => {
-          window.location.href = '/dashboard'
-        }, 1000) // aguarda 1s para o Clerk atualizar o token
+    if (!isLoaded || !setActive) return
+    if (userMemberships?.data?.length) {
+      setActive({ organization: userMemberships.data[0].organization.id }).then(() => {
+        setTimeout(() => { window.location.replace('/dashboard') }, 1500)
       })
-  }
-}, [userMemberships?.data, setActive])
+    }
+  }, [isLoaded, userMemberships?.data?.length])
 
-  // Só mostra CreateOrganization se não tiver nenhuma org
-  if (userMemberships?.isLoading) return <p>Carregando...</p>
-  if (userMemberships?.data?.length) return <p>Redirecionando...</p>
+  if (!isLoaded) return <p className="p-8">Carregando...</p>
+
+  if (userMemberships?.data?.length) {
+    return <p className="p-8">Redirecionando para o dashboard...</p>
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">

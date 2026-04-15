@@ -9,7 +9,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <ClerkProvider>
+    <ClerkProvider
+      afterSignInUrl="/onboarding"
+      afterSignUpUrl="/onboarding"
+    >
       <html lang="pt-BR">
         <body>{children}</body>
       </html>

@@ -12,6 +12,7 @@
     "db:studio": "prisma studio"
   },
   "dependencies": {
+    "@clerk/localizations": "^4.5.1",
     "@clerk/nextjs": "^5.0.0",
     "@prisma/client": "^5.10.0",
     "@radix-ui/react-avatar": "^1.0.4",

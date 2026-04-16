@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { ClerkProvider } from '@clerk/nextjs'
-import './globals.css'
+import { ptBR } from '@clerk/nextjs/localizations'
 
 export const metadata: Metadata = {
   title: 'CorpSales Academy — Treinamento para Equipes de Vendas',

@@ -1,14 +1,19 @@
 import { auth } from '@clerk/nextjs/server'
+import { redirect } from 'next/navigation'
 import { db } from '@/lib/db'
 import { getInitials, calcCompletionRate } from '@/lib/utils'
-import { UserPlus } from 'lucide-react'
+import { InviteButton } from './_components/invite-button'
 
 export default async function UsersPage() {
-  const { orgId } = auth()
-  if (!orgId) return null
+  const { userId, orgId } = auth()
+  if (!userId) redirect('/sign-in')
 
-  const company = await db.company.findUnique({ where: { clerkOrgId: orgId } })
-  if (!company) return null
+  const dbUser = await db.user.findUnique({
+    where: { clerkId: userId },
+    include: { company: true },
+  })
+  if (!dbUser?.company) redirect('/api/seed-company')
+  const company = dbUser.company
 
   const [users, productLineCount] = await Promise.all([
     db.user.findMany({
@@ -41,10 +46,7 @@ export default async function UsersPage() {
           <h1 className="text-xl font-semibold">Vendedores</h1>
           <p className="text-sm text-muted-foreground">{users.length} usuários cadastrados</p>
         </div>
-        <button className="flex items-center gap-2 bg-[#E3001B] text-white text-sm px-4 py-2 rounded-lg hover:bg-red-700 transition-colors">
-          <UserPlus className="w-4 h-4" />
-          Convidar vendedor
-        </button>
+        <InviteButton orgId={orgId ?? ''} />
       </div>
 
       <div className="bg-card border border-border rounded-xl overflow-hidden">

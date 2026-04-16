@@ -36,7 +36,7 @@ export function Sidebar() {
           <span className="text-white font-bold text-xs">CT</span>
         </div>
         <div className="min-w-0">
-          <p className="font-semibold text-sm truncate">Claro Treina</p>
+          <p className="font-semibold text-sm truncate">CorpSales Academy</p>
           {organization && (
             <p className="text-xs text-muted-foreground truncate">{organization.name}</p>
           )}

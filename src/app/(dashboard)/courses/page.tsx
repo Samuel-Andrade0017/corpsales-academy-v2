@@ -1,14 +1,20 @@
 import Link from 'next/link'
 import { auth } from '@clerk/nextjs/server'
+import { redirect } from 'next/navigation'
 import { db } from '@/lib/db'
 import { Plus } from 'lucide-react'
 
 export default async function CoursesPage() {
-  const { orgId } = auth()
-  if (!orgId) return null
+  const { userId } = auth()
+  if (!userId) redirect('/sign-in')
 
-  const company = await db.company.findUnique({ where: { clerkOrgId: orgId } })
-  if (!company) return null
+  const dbUser = await db.user.findUnique({
+    where: { clerkId: userId },
+    include: { company: true },
+  })
+
+  if (!dbUser?.company) redirect('/api/seed-company')
+  const company = dbUser.company
 
   const courses = await db.course.findMany({
     where: { companyId: company.id },
@@ -55,19 +61,10 @@ export default async function CoursesPage() {
               className="bg-card border border-border rounded-xl p-5 hover:border-border/80 hover:shadow-sm transition-all group"
             >
               <div className="flex items-start justify-between mb-3">
-                <div
-                  className="w-10 h-10 rounded-lg flex items-center justify-center text-lg"
-                  style={{ background: '#FFF3F3' }}
-                >
+                <div className="w-10 h-10 rounded-lg flex items-center justify-center text-lg" style={{ background: '#FFF3F3' }}>
                   📚
                 </div>
-                <span
-                  className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                    course.isPublished
-                      ? 'bg-green-50 text-green-700'
-                      : 'bg-secondary text-muted-foreground'
-                  }`}
-                >
+                <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${course.isPublished ? 'bg-green-50 text-green-700' : 'bg-secondary text-muted-foreground'}`}>
                   {course.isPublished ? 'Publicada' : 'Rascunho'}
                 </span>
               </div>

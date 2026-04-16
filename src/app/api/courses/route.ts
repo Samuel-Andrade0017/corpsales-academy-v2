@@ -10,17 +10,20 @@ const createCourseSchema = z.object({
 
 export async function POST(req: Request) {
   try {
-    const { userId, orgId } = auth()
-    if (!userId || !orgId) return new NextResponse('Não autorizado', { status: 401 })
+    const { userId } = auth()
+    if (!userId) return new NextResponse('Não autorizado', { status: 401 })
+
+    const dbUser = await db.user.findUnique({
+      where: { clerkId: userId },
+      include: { company: true },
+    })
+    if (!dbUser?.company) return new NextResponse('Empresa não encontrada', { status: 404 })
 
     const body = await req.json()
     const { title, description } = createCourseSchema.parse(body)
 
-    const company = await db.company.findUnique({ where: { clerkOrgId: orgId } })
-    if (!company) return new NextResponse('Empresa não encontrada', { status: 404 })
-
     const course = await db.course.create({
-      data: { title, description, companyId: company.id },
+      data: { title, description, companyId: dbUser.company.id },
     })
 
     return NextResponse.json(course)
@@ -35,14 +38,17 @@ export async function POST(req: Request) {
 
 export async function GET() {
   try {
-    const { orgId } = auth()
-    if (!orgId) return new NextResponse('Não autorizado', { status: 401 })
+    const { userId } = auth()
+    if (!userId) return new NextResponse('Não autorizado', { status: 401 })
 
-    const company = await db.company.findUnique({ where: { clerkOrgId: orgId } })
-    if (!company) return new NextResponse('Empresa não encontrada', { status: 404 })
+    const dbUser = await db.user.findUnique({
+      where: { clerkId: userId },
+      include: { company: true },
+    })
+    if (!dbUser?.company) return new NextResponse('Empresa não encontrada', { status: 404 })
 
     const courses = await db.course.findMany({
-      where: { companyId: company.id },
+      where: { companyId: dbUser.company.id },
       include: {
         productLine: true,
         _count: { select: { modules: true, enrollments: true } },

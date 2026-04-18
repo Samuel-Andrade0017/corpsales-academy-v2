@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Loader2, Plus, Trash2 } from 'lucide-react'
+import { ArrowLeft, Loader2, Plus, Trash2, Sparkles, ChevronDown, ChevronUp } from 'lucide-react'
 import Link from 'next/link'
 
 export default function EditCoursePage({ params }: { params: { courseId: string } }) {
@@ -12,6 +12,10 @@ export default function EditCoursePage({ params }: { params: { courseId: string 
   const [course, setCourse] = useState<any>(null)
   const [newModule, setNewModule] = useState({ title: '', description: '', videoUrl: '' })
   const [addingModule, setAddingModule] = useState(false)
+  const [quizContent, setQuizContent] = useState<Record<string, string>>({})
+  const [quizExpanded, setQuizExpanded] = useState<Record<string, boolean>>({})
+  const [quizLoading, setQuizLoading] = useState<Record<string, boolean>>({})
+  const [quizQuestions, setQuizQuestions] = useState<Record<string, any[]>>({})
 
   useEffect(() => {
     fetch(`/api/courses/${params.courseId}`)
@@ -50,6 +54,25 @@ export default function EditCoursePage({ params }: { params: { courseId: string 
     setCourse((c: any) => ({ ...c, modules: c.modules.filter((m: any) => m.id !== moduleId) }))
   }
 
+  async function handleGenerateQuiz(moduleId: string) {
+    const content = quizContent[moduleId]
+    if (!content?.trim()) return
+    setQuizLoading(l => ({ ...l, [moduleId]: true }))
+    try {
+      const res = await fetch('/api/quiz/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ moduleId, content }),
+      })
+      const data = await res.json()
+      if (data.questions) {
+        setQuizQuestions(q => ({ ...q, [moduleId]: data.questions }))
+      }
+    } finally {
+      setQuizLoading(l => ({ ...l, [moduleId]: false }))
+    }
+  }
+
   if (!course) return <div className="p-6 text-sm text-muted-foreground">Carregando...</div>
 
   return (
@@ -74,7 +97,6 @@ export default function EditCoursePage({ params }: { params: { courseId: string 
         </button>
       </div>
 
-      {/* Módulos */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <h2 className="font-medium text-sm">Módulos ({course.modules?.length || 0})</h2>
@@ -88,16 +110,67 @@ export default function EditCoursePage({ params }: { params: { courseId: string 
         </div>
 
         {course.modules?.map((mod: any, i: number) => (
-          <div key={mod.id} className="bg-card border border-border rounded-xl p-4 flex items-start gap-3">
-            <div className="w-7 h-7 rounded-lg bg-secondary flex items-center justify-center text-xs font-medium flex-shrink-0">{i + 1}</div>
-            <div className="flex-1">
-              <p className="text-sm font-medium">{mod.title}</p>
-              {mod.description && <p className="text-xs text-muted-foreground mt-0.5">{mod.description}</p>}
-              {mod.videoUrl && <p className="text-xs text-blue-600 mt-1 truncate">{mod.videoUrl}</p>}
+          <div key={mod.id} className="bg-card border border-border rounded-xl p-4 space-y-3">
+            <div className="flex items-start gap-3">
+              <div className="w-7 h-7 rounded-lg bg-secondary flex items-center justify-center text-xs font-medium flex-shrink-0">{i + 1}</div>
+              <div className="flex-1">
+                <p className="text-sm font-medium">{mod.title}</p>
+                {mod.description && <p className="text-xs text-muted-foreground mt-0.5">{mod.description}</p>}
+                {mod.videoUrl && <p className="text-xs text-blue-600 mt-1 truncate">{mod.videoUrl}</p>}
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setQuizExpanded(q => ({ ...q, [mod.id]: !q[mod.id] }))}
+                  className="flex items-center gap-1 text-xs text-purple-600 hover:text-purple-800 transition-colors"
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  Quiz IA
+                  {quizExpanded[mod.id] ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                </button>
+                <button onClick={() => handleDeleteModule(mod.id)} className="text-muted-foreground hover:text-red-500 transition-colors">
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
             </div>
-            <button onClick={() => handleDeleteModule(mod.id)} className="text-muted-foreground hover:text-red-500 transition-colors">
-              <Trash2 className="w-4 h-4" />
-            </button>
+
+            {quizExpanded[mod.id] && (
+              <div className="border-t border-border pt-3 space-y-3">
+                <p className="text-xs text-muted-foreground">Cole o conteúdo do módulo e a IA gerará 5 perguntas automaticamente.</p>
+                <textarea
+                  placeholder="Cole aqui o conteúdo do módulo para gerar o quiz..."
+                  value={quizContent[mod.id] || ''}
+                  onChange={e => setQuizContent(q => ({ ...q, [mod.id]: e.target.value }))}
+                  rows={4}
+                  className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 resize-none"
+                />
+                <button
+                  onClick={() => handleGenerateQuiz(mod.id)}
+                  disabled={quizLoading[mod.id] || !quizContent[mod.id]?.trim()}
+                  className="flex items-center gap-2 bg-purple-600 text-white text-sm px-4 py-2 rounded-lg hover:bg-purple-700 disabled:opacity-50 transition-colors"
+                >
+                  {quizLoading[mod.id] ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                  {quizLoading[mod.id] ? 'Gerando com IA...' : 'Gerar quiz com IA'}
+                </button>
+
+                {quizQuestions[mod.id] && (
+                  <div className="space-y-3 mt-2">
+                    <p className="text-xs font-medium text-green-600">✅ {quizQuestions[mod.id].length} perguntas geradas com sucesso!</p>
+                    {quizQuestions[mod.id].map((q: any, qi: number) => (
+                      <div key={qi} className="bg-secondary/30 rounded-lg p-3 space-y-2">
+                        <p className="text-sm font-medium">{qi + 1}. {q.text}</p>
+                        <div className="space-y-1">
+                          {q.options.map((opt: string, oi: number) => (
+                            <p key={oi} className={`text-xs px-2 py-1 rounded ${oi === q.correctIndex ? 'bg-green-100 text-green-800 font-medium' : 'text-muted-foreground'}`}>
+                              {oi === q.correctIndex ? '✓' : '○'} {opt}
+                            </p>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         ))}
 

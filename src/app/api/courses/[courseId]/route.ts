@@ -20,7 +20,7 @@ export async function GET(
       where: { id: params.courseId, companyId: dbUser.company.id },
       include: {
         productLine: true,
-        modules: { orderBy: { order: 'asc' }, include: { quizzes: true } },
+        modules: { orderBy: { order: 'asc' }, include: { quiz: true } },
         _count: { select: { enrollments: true } },
       },
     })

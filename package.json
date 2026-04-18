@@ -12,6 +12,7 @@
     "db:studio": "prisma studio"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.90.0",
     "@clerk/localizations": "^4.5.1",
     "@clerk/nextjs": "^5.0.0",
     "@prisma/client": "^5.10.0",

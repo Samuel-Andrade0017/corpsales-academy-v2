@@ -23,7 +23,7 @@ export default async function CourseDetailPage({
     where: { id: params.courseId, companyId: dbUser.company.id },
     include: {
       productLine: true,
-      modules: { orderBy: { order: 'asc' }, include: { quizzes: true } },
+      modules: { orderBy: { order: 'asc' }, include: { quiz: { include: { questions: true } } } },
       _count: { select: { enrollments: true } },
     },
   })
@@ -94,7 +94,7 @@ export default async function CourseDetailPage({
                 )}
                 <div className="flex items-center gap-2 mt-2">
                   {mod.videoUrl && <span className="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full">Vídeo</span>}
-                  {mod.quizzes.length > 0 && <span className="text-xs bg-purple-50 text-purple-700 px-2 py-0.5 rounded-full">{mod.quizzes.length} quiz</span>}
+                  {mod.quiz && <span className="text-xs bg-purple-50 text-purple-700 px-2 py-0.5 rounded-full">{mod.quiz.questions.length} perguntas</span>}
                   {!mod.isPublished && <span className="text-xs bg-secondary text-muted-foreground px-2 py-0.5 rounded-full">Rascunho</span>}
                 </div>
               </div>

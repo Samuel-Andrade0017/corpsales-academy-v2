@@ -22,6 +22,7 @@ model User {
   certifications   SalesCertification[]
   createdAt        DateTime            @default(now())
   updatedAt        DateTime            @updatedAt
+  quizAttempts   QuizAttempt[] // ← adicionar essa linha
 }
 
 model ProductLine {
@@ -55,28 +56,49 @@ model Course {
 }
 
 model Module {
-  id          String   @id @default(cuid())
+  id          String           @id @default(cuid())
   title       String
   description String?
   videoUrl    String?
   order       Int
-  isPublished Boolean  @default(false)
+  isPublished Boolean          @default(false)
   courseId    String
-  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  quizzes     Quiz[]
+  course      Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  quiz        Quiz?            // ← adicionar essa linha de volta
   progress    ModuleProgress[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
 }
 
 model Quiz {
-  id        String       @id @default(cuid())
-  question  String
-  options   String[]
-  answer    Int
-  moduleId  String
-  module    Module       @relation(fields: [moduleId], references: [id], onDelete: Cascade)
-  createdAt DateTime     @default(now())
+  id         String       @id @default(cuid())
+  moduleId   String       @unique
+  module     Module       @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  questions  Question[]
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+}
+
+model Question {
+  id            String         @id @default(cuid())
+  quizId        String
+  quiz          Quiz           @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  text          String
+  options       String[]
+  correctIndex  Int
+  attempts      QuizAttempt[]
+  createdAt     DateTime       @default(now())
+}
+
+model QuizAttempt {
+  id           String    @id @default(cuid())
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  questionId   String
+  question     Question  @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  moduleId     String
+  correct      Boolean
+  createdAt    DateTime  @default(now())
 }
 
 model Enrollment {
@@ -173,3 +195,4 @@ model Company {
   courses      Course[]
   productLines ProductLine[]
 }
+

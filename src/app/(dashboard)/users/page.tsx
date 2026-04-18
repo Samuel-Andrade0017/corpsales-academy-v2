@@ -2,10 +2,10 @@ import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import { db } from '@/lib/db'
 import { getInitials, calcCompletionRate } from '@/lib/utils'
-import { InviteButton } from './_components/invite-button'
+import { InviteLinkButton } from './_components/invite-link-button'
 
 export default async function UsersPage() {
-  const { userId, orgId } = auth()
+  const { userId } = auth()
   if (!userId) redirect('/sign-in')
 
   const dbUser = await db.user.findUnique({
@@ -46,7 +46,7 @@ export default async function UsersPage() {
           <h1 className="text-xl font-semibold">Vendedores</h1>
           <p className="text-sm text-muted-foreground">{users.length} usuários cadastrados</p>
         </div>
-        <InviteButton orgId={orgId ?? ''} />
+        <InviteLinkButton />
       </div>
 
       <div className="bg-card border border-border rounded-xl overflow-hidden">

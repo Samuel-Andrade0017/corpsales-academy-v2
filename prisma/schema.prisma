@@ -10,19 +10,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Company {
-  id           String        @id @default(cuid())
-  name         String
-  clerkOrgId   String        @unique
-  plan         Plan          @default(STARTER)
-  stripeId     String?
-  users        User[]
-  courses      Course[]
-  productLines ProductLine[]
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-}
-
 model User {
   id               String              @id @default(cuid())
   clerkId          String              @unique
@@ -174,4 +161,15 @@ enum Urgency {
   SEMANA
   EM_BREVE
   NORMAL
+}
+model Company {
+  id           String   @id @default(cuid())
+  name         String
+  clerkOrgId   String   @unique
+  plan         Plan     @default(STARTER)
+  stripeId     String?
+  inviteToken  String?  @unique  // ← adicionar isso
+  users        User[]
+  courses      Course[]
+  productLines ProductLine[]
 }

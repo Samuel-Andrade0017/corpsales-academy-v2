@@ -13,15 +13,14 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   if (!dbUser) redirect('/api/seed-company')
 
-  // Vendedor vai para área própria
   if (dbUser.role === 'EMPLOYEE') {
     redirect('/minha-area')
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
+    <div className="flex h-screen overflow-hidden" style={{ background: '#0f0f0f' }}>
       <Sidebar />
-      <main className="flex-1 overflow-y-auto">{children}</main>
+      <main className="flex-1 overflow-y-auto" style={{ background: '#0f0f0f' }}>{children}</main>
     </div>
   )
 }

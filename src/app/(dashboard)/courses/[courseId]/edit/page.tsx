@@ -1,12 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { ArrowLeft, Loader2, Plus, Trash2, Sparkles, ChevronDown, ChevronUp } from 'lucide-react'
+import { ArrowLeft, Loader2, Plus, Trash2, Sparkles, ChevronDown, ChevronUp, Upload } from 'lucide-react'
 import Link from 'next/link'
 
 export default function EditCoursePage({ params }: { params: { courseId: string } }) {
-  const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [course, setCourse] = useState<any>(null)
@@ -16,6 +14,7 @@ export default function EditCoursePage({ params }: { params: { courseId: string 
   const [quizExpanded, setQuizExpanded] = useState<Record<string, boolean>>({})
   const [quizLoading, setQuizLoading] = useState<Record<string, boolean>>({})
   const [quizQuestions, setQuizQuestions] = useState<Record<string, any[]>>({})
+  const [uploadingVideo, setUploadingVideo] = useState(false)
 
   useEffect(() => {
     fetch(`/api/courses/${params.courseId}`)
@@ -70,6 +69,19 @@ export default function EditCoursePage({ params }: { params: { courseId: string 
       }
     } finally {
       setQuizLoading(l => ({ ...l, [moduleId]: false }))
+    }
+  }
+
+  async function handleVideoUpload(file: File) {
+    setUploadingVideo(true)
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      const res = await fetch('/api/upload', { method: 'POST', body: formData })
+      const data = await res.json()
+      if (data.url) setNewModule(m => ({ ...m, videoUrl: data.url }))
+    } finally {
+      setUploadingVideo(false)
     }
   }
 
@@ -190,15 +202,41 @@ export default function EditCoursePage({ params }: { params: { courseId: string 
               onChange={e => setNewModule(m => ({ ...m, description: e.target.value }))}
               className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-[#E3001B]/20 focus:border-[#E3001B]"
             />
-            <input
-              type="text"
-              placeholder="URL do vídeo (opcional)"
-              value={newModule.videoUrl}
-              onChange={e => setNewModule(m => ({ ...m, videoUrl: e.target.value }))}
-              className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-[#E3001B]/20 focus:border-[#E3001B]"
-            />
+
+            {/* Campo de vídeo com upload */}
+            <div className="space-y-2">
+              <input
+                type="text"
+                placeholder="URL do vídeo (opcional) — cole um link ou faça upload"
+                value={newModule.videoUrl}
+                onChange={e => setNewModule(m => ({ ...m, videoUrl: e.target.value }))}
+                className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-[#E3001B]/20 focus:border-[#E3001B]"
+              />
+              <label className="flex items-center gap-2 cursor-pointer w-fit">
+                <div className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border transition-colors ${uploadingVideo ? 'opacity-50 cursor-not-allowed border-border text-muted-foreground' : 'border-purple-300 text-purple-600 hover:bg-purple-50'}`}>
+                  {uploadingVideo
+                    ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Enviando vídeo...</>
+                    : <><Upload className="w-3.5 h-3.5" /> Upload de vídeo</>
+                  }
+                </div>
+                <input
+                  type="file"
+                  accept="video/*"
+                  className="hidden"
+                  disabled={uploadingVideo}
+                  onChange={e => {
+                    const file = e.target.files?.[0]
+                    if (file) handleVideoUpload(file)
+                  }}
+                />
+              </label>
+              {newModule.videoUrl && (
+                <p className="text-xs text-green-600">✅ Vídeo pronto: {newModule.videoUrl.slice(0, 50)}...</p>
+              )}
+            </div>
+
             <div className="flex gap-2">
-              <button onClick={handleAddModule} disabled={loading} className="flex items-center gap-2 bg-[#E3001B] text-white text-sm px-4 py-2 rounded-lg hover:bg-red-700 disabled:opacity-50">
+              <button onClick={handleAddModule} disabled={loading || uploadingVideo} className="flex items-center gap-2 bg-[#E3001B] text-white text-sm px-4 py-2 rounded-lg hover:bg-red-700 disabled:opacity-50">
                 {loading && <Loader2 className="w-4 h-4 animate-spin" />}
                 Salvar módulo
               </button>

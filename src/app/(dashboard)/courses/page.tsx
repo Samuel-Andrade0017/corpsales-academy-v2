@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import { db } from '@/lib/db'
-import { Plus } from 'lucide-react'
+import { Plus, BookOpen, Users, Layers } from 'lucide-react'
 
 export default async function CoursesPage() {
   const { userId } = auth()
@@ -25,28 +25,72 @@ export default async function CoursesPage() {
     orderBy: { createdAt: 'desc' },
   })
 
+  const published = courses.filter(c => c.isPublished).length
+  const drafts = courses.filter(c => !c.isPublished).length
+
   return (
     <div className="p-6">
-      <div className="flex items-center justify-between mb-6">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-xl font-semibold">Trilhas de treinamento</h1>
-          <p className="text-sm text-muted-foreground">{courses.length} trilhas cadastradas</p>
+          <h1 className="text-2xl font-semibold tracking-tight">Trilhas de treinamento</h1>
+          <p className="text-sm text-muted-foreground mt-1">{courses.length} trilhas cadastradas</p>
         </div>
         <Link
           href="/courses/new"
-          className="flex items-center gap-2 bg-[#E3001B] text-white text-sm px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
+          className="flex items-center gap-2 bg-[#E3001B] text-white text-sm px-4 py-2.5 rounded-lg hover:bg-red-700 transition-colors font-medium"
         >
           <Plus className="w-4 h-4" />
           Nova trilha
         </Link>
       </div>
 
+      {/* Stats */}
+      {courses.length > 0 && (
+        <div className="grid grid-cols-3 gap-4 mb-8">
+          <div className="bg-card border border-border rounded-xl p-4 flex items-center gap-4">
+            <div className="w-10 h-10 rounded-lg bg-[#E3001B]/10 flex items-center justify-center flex-shrink-0">
+              <Layers className="w-5 h-5 text-[#E3001B]" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold">{courses.length}</p>
+              <p className="text-xs text-muted-foreground">total de trilhas</p>
+            </div>
+          </div>
+          <div className="bg-card border border-border rounded-xl p-4 flex items-center gap-4">
+            <div className="w-10 h-10 rounded-lg bg-green-500/10 flex items-center justify-center flex-shrink-0">
+              <BookOpen className="w-5 h-5 text-green-600" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold">{published}</p>
+              <p className="text-xs text-muted-foreground">publicadas</p>
+            </div>
+          </div>
+          <div className="bg-card border border-border rounded-xl p-4 flex items-center gap-4">
+            <div className="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center flex-shrink-0">
+              <Users className="w-5 h-5 text-muted-foreground" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold">{drafts}</p>
+              <p className="text-xs text-muted-foreground">rascunhos</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Empty state */}
       {courses.length === 0 ? (
-        <div className="text-center py-24">
-          <p className="text-muted-foreground mb-4">Nenhuma trilha criada ainda.</p>
+        <div className="border border-dashed border-border rounded-2xl p-16 text-center">
+          <div className="w-16 h-16 rounded-2xl bg-[#E3001B]/10 flex items-center justify-center mx-auto mb-4">
+            <BookOpen className="w-8 h-8 text-[#E3001B]" />
+          </div>
+          <h3 className="font-semibold mb-2">Nenhuma trilha criada ainda</h3>
+          <p className="text-sm text-muted-foreground mb-6 max-w-xs mx-auto">
+            Crie sua primeira trilha de treinamento e comece a capacitar sua equipe de vendas.
+          </p>
           <Link
             href="/courses/new"
-            className="inline-flex items-center gap-2 bg-[#E3001B] text-white text-sm px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
+            className="inline-flex items-center gap-2 bg-[#E3001B] text-white text-sm px-5 py-2.5 rounded-lg hover:bg-red-700 transition-colors font-medium"
           >
             <Plus className="w-4 h-4" />
             Criar primeira trilha
@@ -58,26 +102,44 @@ export default async function CoursesPage() {
             <Link
               key={course.id}
               href={`/courses/${course.id}`}
-              className="bg-card border border-border rounded-xl p-5 hover:border-border/80 hover:shadow-sm transition-all group"
+              className="group bg-card border border-border rounded-2xl p-5 hover:border-[#E3001B]/30 hover:shadow-lg transition-all duration-200 flex flex-col"
             >
-              <div className="flex items-start justify-between mb-3">
-                <div className="w-10 h-10 rounded-lg flex items-center justify-center text-lg" style={{ background: '#FFF3F3' }}>
-                  📚
+              {/* Top */}
+              <div className="flex items-start justify-between mb-4">
+                <div className="w-12 h-12 rounded-xl bg-[#E3001B]/10 flex items-center justify-center flex-shrink-0">
+                  <BookOpen className="w-6 h-6 text-[#E3001B]" />
                 </div>
-                <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${course.isPublished ? 'bg-green-50 text-green-700' : 'bg-secondary text-muted-foreground'}`}>
-                  {course.isPublished ? 'Publicada' : 'Rascunho'}
+                <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${
+                  course.isPublished
+                    ? 'bg-green-50 text-green-700 border border-green-200'
+                    : 'bg-secondary text-muted-foreground border border-border'
+                }`}>
+                  {course.isPublished ? '● Publicada' : '○ Rascunho'}
                 </span>
               </div>
-              <h3 className="font-medium text-sm mb-1 group-hover:text-[#E3001B] transition-colors">
-                {course.title}
-              </h3>
-              {course.productLine && (
-                <p className="text-xs text-muted-foreground mb-3">{course.productLine.name}</p>
-              )}
-              <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                <span>{course._count.modules} módulos</span>
-                <span>·</span>
-                <span>{course._count.enrollments} matriculados</span>
+
+              {/* Content */}
+              <div className="flex-1">
+                <h3 className="font-semibold text-base mb-1 group-hover:text-[#E3001B] transition-colors line-clamp-2">
+                  {course.title}
+                </h3>
+                {course.productLine && (
+                  <p className="text-xs text-muted-foreground mb-3 bg-secondary px-2 py-0.5 rounded-md inline-block">
+                    {course.productLine.name}
+                  </p>
+                )}
+              </div>
+
+              {/* Footer */}
+              <div className="flex items-center gap-4 pt-4 mt-4 border-t border-border">
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <Layers className="w-3.5 h-3.5" />
+                  <span>{course._count.modules} módulos</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <Users className="w-3.5 h-3.5" />
+                  <span>{course._count.enrollments} matriculados</span>
+                </div>
               </div>
             </Link>
           ))}

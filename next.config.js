@@ -6,7 +6,11 @@ const nextConfig = {
       { protocol: 'https', hostname: 'images.clerk.dev' },
       { protocol: 'https', hostname: 'uploadthing.com' },
       { protocol: 'https', hostname: '**.ufs.sh' },
+      { protocol: 'https', hostname: 'res.cloudinary.com' },
     ],
+  },
+  experimental: {
+    serverActionsBodySizeLimit: '100mb',
   },
 }
 

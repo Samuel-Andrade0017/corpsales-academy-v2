@@ -8,6 +8,15 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 })
 
+export const config = {
+  api: {
+    bodyParser: false,
+    responseLimit: false,
+  },
+}
+
+export const maxDuration = 60
+
 export async function POST(req: Request) {
   try {
     const { userId } = auth()
@@ -49,3 +58,5 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: error.message || 'Erro no upload' }, { status: 500 })
   }
 }
+
+export const maxDuration = 60

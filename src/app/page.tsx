@@ -19,16 +19,16 @@ export default function HomePage() {
         .nav-links a:hover { color: var(--white); }
         .nav-cta { background: var(--red) !important; color: var(--white) !important; padding: 10px 24px; border-radius: 8px; font-weight: 500 !important; }
         .nav-cta-mobile { display: none; background: var(--red); color: var(--white); padding: 8px 18px; border-radius: 8px; font-weight: 500; font-size: 14px; text-decoration: none; white-space: nowrap; }
-        .hero { min-height: 100vh; display: flex; align-items: center; padding: 140px 60px 100px; position: relative; overflow: hidden; }
+        .hero { min-height: 100vh; display: flex; align-items: center; padding: 100px 60px 60px; position: relative; overflow: hidden; }
         .hero-bg { position: absolute; inset: 0; background: radial-gradient(ellipse 80% 60% at 60% 40%, rgba(227,0,27,0.12) 0%, transparent 60%), radial-gradient(ellipse 40% 40% at 20% 80%, rgba(227,0,27,0.06) 0%, transparent 50%); }
         .hero-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px); background-size: 60px 60px; mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, black 0%, transparent 100%); }
         .hero-content { position: relative; z-index: 2; max-width: 700px; }
         .hero-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(227,0,27,0.15); border: 1px solid rgba(227,0,27,0.3); color: #ff6b6b; padding: 6px 16px; border-radius: 99px; font-size: 13px; font-weight: 500; margin-bottom: 32px; }
         .pulse { width: 6px; height: 6px; background: var(--red); border-radius: 50%; display: inline-block; animation: pulse 2s infinite; flex-shrink: 0; }
         @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.8); } }
-        h1 { font-family: 'Syne', sans-serif; font-size: clamp(44px, 6vw, 80px); font-weight: 800; line-height: 1.05; letter-spacing: -2px; margin-bottom: 24px; }
+        h1 { font-family: 'Syne', sans-serif; font-size: clamp(36px, 5vw, 64px); font-weight: 800; line-height: 1.05; letter-spacing: -2px; margin-bottom: 20px; }
         .red { color: var(--red); }
-        .hero-sub { font-size: 18px; color: var(--gray-light); max-width: 520px; line-height: 1.7; margin-bottom: 40px; font-weight: 300; }
+        .hero-sub { font-size: 16px; color: var(--gray-light); max-width: 520px; line-height: 1.6; margin-bottom: 32px; font-weight: 300; }
         .hero-actions { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
         .btn-primary { background: var(--red); color: var(--white); padding: 14px 32px; border-radius: 10px; font-size: 15px; font-weight: 500; text-decoration: none; transition: all 0.2s; display: inline-block; }
         .btn-primary:hover { background: var(--red-dark); transform: translateY(-1px); }

@@ -12,37 +12,38 @@ export default function HomePage() {
         html { scroll-behavior: smooth; }
         body { font-family: 'DM Sans', sans-serif; background: var(--dark); color: var(--white); overflow-x: hidden; line-height: 1.6; }
         nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 20px 60px; display: flex; align-items: center; justify-content: space-between; background: rgba(10,10,10,0.85); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); }
-        .logo { display: flex; align-items: center; gap: 10px; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 18px; color: var(--white); text-decoration: none; }
-        .logo-icon { width: 32px; height: 32px; background: var(--red); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; }
+        .logo { display: flex; align-items: center; gap: 10px; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 18px; color: var(--white); text-decoration: none; white-space: nowrap; }
+        .logo-icon { width: 32px; height: 32px; background: var(--red); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; flex-shrink: 0; }
         .nav-links { display: flex; align-items: center; gap: 32px; list-style: none; }
         .nav-links a { color: var(--gray-light); text-decoration: none; font-size: 14px; transition: color 0.2s; }
         .nav-links a:hover { color: var(--white); }
         .nav-cta { background: var(--red) !important; color: var(--white) !important; padding: 10px 24px; border-radius: 8px; font-weight: 500 !important; }
+        .nav-cta-mobile { display: none; background: var(--red); color: var(--white); padding: 8px 18px; border-radius: 8px; font-weight: 500; font-size: 14px; text-decoration: none; white-space: nowrap; }
         .hero { min-height: 100vh; display: flex; align-items: center; padding: 140px 60px 100px; position: relative; overflow: hidden; }
         .hero-bg { position: absolute; inset: 0; background: radial-gradient(ellipse 80% 60% at 60% 40%, rgba(227,0,27,0.12) 0%, transparent 60%), radial-gradient(ellipse 40% 40% at 20% 80%, rgba(227,0,27,0.06) 0%, transparent 50%); }
         .hero-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px); background-size: 60px 60px; mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, black 0%, transparent 100%); }
         .hero-content { position: relative; z-index: 2; max-width: 700px; }
         .hero-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(227,0,27,0.15); border: 1px solid rgba(227,0,27,0.3); color: #ff6b6b; padding: 6px 16px; border-radius: 99px; font-size: 13px; font-weight: 500; margin-bottom: 32px; }
-        .pulse { width: 6px; height: 6px; background: var(--red); border-radius: 50%; display: inline-block; animation: pulse 2s infinite; }
+        .pulse { width: 6px; height: 6px; background: var(--red); border-radius: 50%; display: inline-block; animation: pulse 2s infinite; flex-shrink: 0; }
         @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.8); } }
-        h1 { font-family: 'Syne', sans-serif; font-size: clamp(48px, 6vw, 80px); font-weight: 800; line-height: 1.05; letter-spacing: -2px; margin-bottom: 24px; }
+        h1 { font-family: 'Syne', sans-serif; font-size: clamp(44px, 6vw, 80px); font-weight: 800; line-height: 1.05; letter-spacing: -2px; margin-bottom: 24px; }
         .red { color: var(--red); }
         .hero-sub { font-size: 18px; color: var(--gray-light); max-width: 520px; line-height: 1.7; margin-bottom: 40px; font-weight: 300; }
-        .hero-actions { display: flex; align-items: center; gap: 16px; }
+        .hero-actions { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
         .btn-primary { background: var(--red); color: var(--white); padding: 14px 32px; border-radius: 10px; font-size: 15px; font-weight: 500; text-decoration: none; transition: all 0.2s; display: inline-block; }
         .btn-primary:hover { background: var(--red-dark); transform: translateY(-1px); }
-        .btn-ghost { color: var(--gray-light); font-size: 15px; text-decoration: none; transition: color 0.2s; }
+        .btn-ghost { color: var(--gray-light); font-size: 15px; text-decoration: none; transition: color 0.2s; white-space: nowrap; }
         .btn-ghost:hover { color: var(--white); }
         .social-proof { padding: 60px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: var(--dark-2); }
         .social-proof-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; gap: 60px; flex-wrap: wrap; }
-        .social-proof-label { font-size: 12px; color: var(--gray); text-transform: uppercase; letter-spacing: 0.1em; }
+        .social-proof-label { font-size: 12px; color: var(--gray); text-transform: uppercase; letter-spacing: 0.1em; flex-shrink: 0; }
         .stats-row { display: flex; gap: 48px; flex-wrap: wrap; }
         .stat-num { font-family: 'Syne', sans-serif; font-size: 36px; font-weight: 800; line-height: 1; }
         .stat-label { font-size: 12px; color: var(--gray); margin-top: 4px; }
         section { padding: 100px 60px; }
         .section-inner { max-width: 1100px; margin: 0 auto; }
         .section-tag { font-size: 12px; color: var(--red); text-transform: uppercase; letter-spacing: 0.15em; font-weight: 600; margin-bottom: 16px; }
-        h2 { font-family: 'Syne', sans-serif; font-size: clamp(32px, 4vw, 52px); font-weight: 800; line-height: 1.1; letter-spacing: -1.5px; margin-bottom: 20px; }
+        h2 { font-family: 'Syne', sans-serif; font-size: clamp(28px, 4vw, 52px); font-weight: 800; line-height: 1.1; letter-spacing: -1.5px; margin-bottom: 20px; }
         .section-sub { font-size: 17px; color: var(--gray-light); max-width: 560px; font-weight: 300; line-height: 1.7; }
         .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 60px; }
         .feature-card { background: var(--dark-3); border: 1px solid var(--border); border-radius: 16px; padding: 32px; transition: border-color 0.2s, transform 0.2s; }
@@ -86,7 +87,7 @@ export default function HomePage() {
         .testimonial-stars { color: #f59e0b; font-size: 14px; margin-bottom: 16px; }
         .testimonial-text { font-size: 15px; color: var(--gray-light); line-height: 1.7; margin-bottom: 24px; font-style: italic; }
         .testimonial-author { display: flex; align-items: center; gap: 12px; }
-        .author-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--red); display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; }
+        .author-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--red); display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; flex-shrink: 0; }
         .author-name { font-size: 14px; font-weight: 500; }
         .author-role { font-size: 12px; color: var(--gray); }
         .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 60px; }
@@ -111,6 +112,43 @@ export default function HomePage() {
         .footer-links { display: flex; gap: 24px; }
         .footer-links a { font-size: 13px; color: var(--gray); text-decoration: none; transition: color 0.2s; }
         .footer-links a:hover { color: var(--white); }
+
+        @media (max-width: 768px) {
+          nav { padding: 14px 20px; }
+          .nav-links { display: none; }
+          .nav-cta-mobile { display: block; }
+          .hero { padding: 100px 20px 60px; min-height: auto; }
+          h1 { font-size: 44px; letter-spacing: -1px; word-break: break-word; }
+          .hero-sub { font-size: 16px; }
+          .hero-actions { flex-direction: column; align-items: stretch; gap: 12px; }
+          .btn-primary { text-align: center; width: 100%; }
+          .btn-ghost { text-align: center; }
+          .social-proof { padding: 40px 20px; }
+          .social-proof-inner { flex-direction: column; gap: 20px; align-items: flex-start; }
+          .stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; }
+          .stat-num { font-size: 28px; }
+          section { padding: 60px 20px; }
+          h2 { font-size: 32px; letter-spacing: -1px; }
+          .section-sub { font-size: 15px; }
+          .features-grid { grid-template-columns: 1fr; gap: 16px; margin-top: 40px; }
+          .feature-card { padding: 24px; }
+          .steps { grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 40px; }
+          .steps::before { display: none; }
+          .step { padding: 0 8px; }
+          .preview-wrap { grid-template-columns: 1fr; gap: 40px; margin-top: 40px; }
+          .dashboard-mock { padding: 16px; }
+          .mock-card-val { font-size: 22px; }
+          .testimonials-grid { grid-template-columns: 1fr; gap: 16px; margin-top: 40px; }
+          .testimonial-card { padding: 24px; }
+          .pricing-grid { grid-template-columns: 1fr; gap: 24px; margin-top: 40px; }
+          .pricing-card { padding: 28px; }
+          .pricing-card.featured { margin-top: 12px; }
+          .cta-section { padding: 60px 20px; }
+          .cta-section h2 { font-size: 32px; }
+          footer { padding: 40px 20px; }
+          .footer-inner { flex-direction: column; gap: 24px; text-align: center; }
+          .footer-links { flex-wrap: wrap; justify-content: center; gap: 16px; }
+        }
       `}</style>
 
       <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
@@ -126,9 +164,9 @@ export default function HomePage() {
           <li><a href="#planos">Planos</a></li>
           <li><a href="/sign-in" className="nav-cta">Entrar</a></li>
         </ul>
+        <a href="/sign-in" className="nav-cta-mobile">Entrar</a>
       </nav>
 
-      {/* HERO */}
       <section className="hero">
         <div className="hero-bg"></div>
         <div className="hero-grid"></div>
@@ -146,7 +184,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* SOCIAL PROOF */}
       <div className="social-proof">
         <div className="social-proof-inner">
           <p className="social-proof-label">Resultados reais</p>
@@ -166,7 +203,6 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* FEATURES */}
       <section id="funcionalidades">
         <div className="section-inner">
           <p className="section-tag">Funcionalidades</p>
@@ -191,7 +227,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* HOW IT WORKS */}
       <section id="como-funciona" className="how-bg">
         <div className="section-inner">
           <p className="section-tag">Como funciona</p>
@@ -213,7 +248,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* DASHBOARD PREVIEW */}
       <section>
         <div className="section-inner">
           <div className="preview-wrap">
@@ -272,7 +306,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* TESTIMONIALS */}
       <section className="testimonials-bg">
         <div className="section-inner">
           <p className="section-tag">Depoimentos</p>
@@ -299,7 +332,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* PRICING */}
       <section id="planos">
         <div className="section-inner">
           <p className="section-tag">Planos</p>
@@ -338,7 +370,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* CTA */}
       <div className="cta-section">
         <p className="section-tag" style={{ marginBottom: 16 }}>Pronto para começar?</p>
         <h2>Seu time merece um <span className="red">treinamento de verdade</span></h2>
@@ -346,7 +377,6 @@ export default function HomePage() {
         <a href="/sign-up" className="btn-primary" style={{ fontSize: 16, padding: '16px 40px' }}>Criar conta grátis →</a>
       </div>
 
-      {/* FOOTER */}
       <footer>
         <div className="footer-inner">
           <div>

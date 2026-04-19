@@ -1,26 +1,51 @@
-import { auth } from '@clerk/nextjs/server'
-import { redirect } from 'next/navigation'
-import { db } from '@/lib/db'
-import { Sidebar } from './_components/sidebar'
+import type { Metadata } from 'next'
+import { ClerkProvider } from '@clerk/nextjs'
+import { Inter } from 'next/font/google'
+import './globals.css'
 
-export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const { userId } = auth()
-  if (!userId) redirect('/sign-in')
+const inter = Inter({ subsets: ['latin'] })
 
-  const dbUser = await db.user.findUnique({
-    where: { clerkId: userId },
-  })
+export const metadata: Metadata = {
+  title: 'CorpSales Academy — Treinamento para Equipes de Vendas',
+  description: 'Plataforma para treinar, certificar e acompanhar equipes de vendas.',
+}
 
-  if (!dbUser) redirect('/api/seed-company')
-
-  if (dbUser.role === 'EMPLOYEE') {
-    redirect('/minha-area')
-  }
-
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
-      <Sidebar />
-      <main className="flex-1 overflow-y-auto pb-16 md:pb-0">{children}</main>
-    </div>
+    <ClerkProvider localization={{
+      locale: 'pt-BR',
+      signIn: {
+        start: {
+          title: 'Entrar na sua conta',
+          subtitle: 'Bem-vindo de volta!',
+          actionText: 'Não tem uma conta?',
+          actionLink: 'Cadastre-se',
+        },
+      },
+      signUp: {
+        start: {
+          title: 'Criar sua conta',
+          subtitle: 'Bem-vindo! Preencha os dados para começar.',
+          actionText: 'Já tem uma conta?',
+          actionLink: 'Entrar',
+        },
+      },
+      userButton: {
+        action__signOut: 'Sair',
+        action__manageAccount: 'Gerenciar conta',
+      },
+      formFieldLabel__emailAddress: 'E-mail',
+      formFieldLabel__password: 'Senha',
+      formFieldLabel__firstName: 'Nome',
+      formFieldLabel__lastName: 'Sobrenome',
+      formButtonPrimary: 'Continuar',
+      dividerText: 'ou',
+      socialButtonsBlockButton: 'Continuar com {{provider}}',
+      footerActionLink__useAnotherMethod: 'Usar outro método',
+    } as any}>
+      <html lang="pt-BR">
+        <body className={inter.className}>{children}</body>
+      </html>
+    </ClerkProvider>
   )
 }

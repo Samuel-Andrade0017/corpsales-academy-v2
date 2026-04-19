@@ -77,9 +77,15 @@ export default function EditCoursePage({ params }: { params: { courseId: string 
     try {
       const formData = new FormData()
       formData.append('file', file)
-      const res = await fetch('/api/upload', { method: 'POST', body: formData })
+      formData.append('upload_preset', 'corpsales-videos')
+      formData.append('resource_type', 'video')
+
+      const res = await fetch(
+        `https://api.cloudinary.com/v1_1/ddjymk09s/video/upload`,
+        { method: 'POST', body: formData }
+      )
       const data = await res.json()
-      if (data.url) setNewModule(m => ({ ...m, videoUrl: data.url }))
+      if (data.secure_url) setNewModule(m => ({ ...m, videoUrl: data.secure_url }))
     } finally {
       setUploadingVideo(false)
     }

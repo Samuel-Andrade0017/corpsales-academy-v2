@@ -44,19 +44,19 @@ export function StatsCards({ totalSellers, activeCourses, completionRate, uncert
   ]
 
   return (
-    <div className="grid grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
       {cards.map((card) => (
         <div
           key={card.label}
-          className="bg-card border border-border rounded-2xl p-5 flex flex-col gap-4 hover:border-border/60 transition-colors"
+          className="bg-card border border-border rounded-2xl p-4 md:p-5 flex flex-col gap-3"
         >
           <div className="flex items-center justify-between">
-            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">{card.label}</p>
-            <div style={{ background: card.bg, borderRadius: 10, padding: 8 }}>
-              <card.icon style={{ width: 16, height: 16, color: card.color }} />
+            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide leading-tight">{card.label}</p>
+            <div style={{ background: card.bg, borderRadius: 8, padding: 6, flexShrink: 0 }}>
+              <card.icon style={{ width: 14, height: 14, color: card.color }} />
             </div>
           </div>
-          <p style={{ fontSize: 36, fontWeight: 800, color: card.color, lineHeight: 1, letterSpacing: '-1px' }}>
+          <p style={{ fontSize: 32, fontWeight: 800, color: card.color, lineHeight: 1, letterSpacing: '-1px' }}>
             {card.value}{card.suffix}
           </p>
         </div>

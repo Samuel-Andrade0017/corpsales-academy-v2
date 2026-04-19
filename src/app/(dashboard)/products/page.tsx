@@ -66,8 +66,8 @@ export default function ProductsPage() {
 
       {/* Modal de cadastro */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-background border border-border rounded-xl p-6 w-full max-w-md shadow-xl">
+  <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999, padding: 16 }}>
+    <div style={{ background: 'var(--background)', border: '1px solid var(--border)', borderRadius: 16, padding: 24, width: '100%', maxWidth: 440, boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold">Novo produto</h2>
               <button onClick={() => setShowForm(false)} className="text-muted-foreground hover:text-foreground">

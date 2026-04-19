@@ -117,8 +117,8 @@ export default function HomePage() {
           nav { padding: 14px 20px; }
           .nav-links { display: none; }
           .nav-cta-mobile { display: block; }
-          .hero { padding: 100px 20px 60px; min-height: auto; }
-          h1 { font-size: 44px; letter-spacing: -1px; word-break: break-word; }
+          .hero { padding: 90px 20px 50px; min-height: 100vh; display: flex; align-items: center; }
+          h1 { font-size: 36px; letter-spacing: -0.5px; word-break: normal; }
           .hero-sub { font-size: 16px; }
           .hero-actions { flex-direction: column; align-items: stretch; gap: 12px; }
           .btn-primary { text-align: center; width: 100%; }

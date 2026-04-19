@@ -9,9 +9,6 @@ const nextConfig = {
       { protocol: 'https', hostname: 'res.cloudinary.com' },
     ],
   },
-  experimental: {
-    serverActionsBodySizeLimit: '100mb',
-  },
 }
 
 module.exports = nextConfig

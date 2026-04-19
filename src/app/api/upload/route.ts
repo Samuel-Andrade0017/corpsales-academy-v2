@@ -9,35 +9,43 @@ cloudinary.config({
 })
 
 export async function POST(req: Request) {
-  const { userId } = auth()
-  if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  try {
+    const { userId } = auth()
+    if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const formData = await req.formData()
-  const file = formData.get('file') as File
+    const formData = await req.formData()
+    const file = formData.get('file') as File
 
-  if (!file) return NextResponse.json({ error: 'Nenhum arquivo enviado' }, { status: 400 })
+    if (!file) return NextResponse.json({ error: 'Nenhum arquivo enviado' }, { status: 400 })
 
-  const bytes = await file.arrayBuffer()
-  const buffer = Buffer.from(bytes)
+    const bytes = await file.arrayBuffer()
+    const buffer = Buffer.from(bytes)
 
-  const result = await new Promise((resolve, reject) => {
-    cloudinary.uploader.upload_stream(
-      {
-        resource_type: 'video',
-        folder: 'corpsales-academy',
-        eager: [{ streaming_profile: 'auto', format: 'm3u8' }],
-      },
-      (error, result) => {
-        if (error) reject(error)
-        else resolve(result)
-      }
-    ).end(buffer)
-  })
+    const result = await new Promise((resolve, reject) => {
+      cloudinary.uploader.upload_stream(
+        {
+          resource_type: 'video',
+          folder: 'corpsales-academy',
+        },
+        (error, result) => {
+          if (error) {
+            console.error('Cloudinary error:', error)
+            reject(error)
+          } else {
+            resolve(result)
+          }
+        }
+      ).end(buffer)
+    })
 
-  const upload = result as any
+    const upload = result as any
 
-  return NextResponse.json({
-    url: upload.secure_url,
-    publicId: upload.public_id,
-  })
+    return NextResponse.json({
+      url: upload.secure_url,
+      publicId: upload.public_id,
+    })
+  } catch (error: any) {
+    console.error('Upload error:', error)
+    return NextResponse.json({ error: error.message || 'Erro no upload' }, { status: 500 })
+  }
 }

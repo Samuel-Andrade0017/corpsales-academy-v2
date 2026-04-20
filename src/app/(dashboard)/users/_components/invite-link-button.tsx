@@ -46,7 +46,8 @@ export function InviteLinkButton() {
 
       {open && link && (
         <div
-          className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4"
+          className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+          style={{ backgroundColor: 'rgba(0,0,0,0.75)' }}
           onClick={() => setOpen(false)}
         >
           <div

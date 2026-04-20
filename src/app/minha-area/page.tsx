@@ -261,7 +261,7 @@ export default async function MinhaAreaPage() {
 
         {/* RANKING */}
         <div>
-          <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 20 }}>🏆 Ranking da equipe</h2>
+          <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 20 }}>🏆 Ranking de Vendedores</h2>
           <RankingTabs
             ranking={ranking}
             quizRanking={quizRanking}

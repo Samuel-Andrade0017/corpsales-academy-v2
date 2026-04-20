@@ -16,7 +16,14 @@ export async function GET(req: Request, { params }: { params: { courseId: string
   const course = await db.course.findUnique({
     where: { id: params.courseId, companyId: dbUser.company.id },
     include: {
-      modules: { orderBy: { order: 'asc' } },
+      modules: {
+        orderBy: { order: 'asc' },
+        include: {
+          quiz: {
+            include: { questions: true },
+          },
+        },
+      },
     },
   })
 
@@ -34,5 +41,13 @@ export async function GET(req: Request, { params }: { params: { courseId: string
     })
   }
 
-  return NextResponse.json({ course, enrollment })
+  // Busca tentativas de quiz do usuário
+  const quizAttempts = await db.quizAttempt.findMany({
+    where: {
+      userId: dbUser.id,
+      moduleId: { in: course.modules.map(m => m.id) },
+    },
+  })
+
+  return NextResponse.json({ course, enrollment, quizAttempts })
 }

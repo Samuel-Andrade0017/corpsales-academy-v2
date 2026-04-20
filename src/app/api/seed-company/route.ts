@@ -2,6 +2,7 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { clerkClient } from '@clerk/nextjs/server'
+import { cookies } from 'next/headers'
 
 export async function GET(req: Request) {
   const { userId } = auth()
@@ -14,8 +15,37 @@ export async function GET(req: Request) {
 
   const { searchParams } = new URL(req.url)
   const token = searchParams.get('token')
+  const companyId = searchParams.get('companyId')
 
-  // Fluxo por link de convite (vendedor)
+  // Fluxo por cookie (vendedor veio do link de convite)
+  if (companyId) {
+    const company = await db.company.findUnique({
+      where: { id: companyId },
+    })
+
+    if (!company) {
+      return NextResponse.redirect(new URL('/sign-in', baseUrl))
+    }
+
+    await db.user.upsert({
+      where: { clerkId: userId },
+      update: {},
+      create: {
+        clerkId: userId,
+        email: clerkUser.emailAddresses[0]?.emailAddress ?? '',
+        name: (clerkUser.firstName ?? '') + ' ' + (clerkUser.lastName ?? ''),
+        companyId: company.id,
+        role: 'EMPLOYEE',
+      },
+    })
+
+    // Limpa o cookie
+    cookies().delete('invite_company_id')
+
+    return NextResponse.redirect(new URL('/minha-area', baseUrl))
+  }
+
+  // Fluxo por token direto (legado — mantido por compatibilidade)
   if (token) {
     const company = await db.company.findUnique({
       where: { inviteToken: token },
@@ -37,7 +67,7 @@ export async function GET(req: Request) {
       },
     })
 
-    return NextResponse.redirect(new URL('/dashboard', baseUrl))
+    return NextResponse.redirect(new URL('/minha-area', baseUrl))
   }
 
   // Fluxo normal (gestor criando empresa via Clerk org)

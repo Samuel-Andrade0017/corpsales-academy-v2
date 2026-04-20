@@ -19,7 +19,8 @@ export async function POST() {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 
-  const token = randomBytes(16).toString('hex')
+  // Só gera token novo se não existir um
+  const token = user.company.inviteToken ?? randomBytes(16).toString('hex')
 
   await db.company.update({
     where: { id: user.companyId },

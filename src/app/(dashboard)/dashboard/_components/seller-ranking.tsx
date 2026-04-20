@@ -1,20 +1,27 @@
 import { db } from '@/lib/db'
-import { calcCompletionRate, getInitials } from '@/lib/utils'
+import { getInitials } from '@/lib/utils'
 
 export async function SellerRanking({ companyId }: { companyId: string }) {
-  const [sellers, productLineCount] = await Promise.all([
-    db.user.findMany({
-      where: { companyId, role: 'EMPLOYEE' },
-      include: { certifications: { where: { passed: true } } },
-    }),
-    db.productLine.count({ where: { companyId } }),
-  ])
+  const sellers = await db.user.findMany({
+    where: { companyId, role: 'EMPLOYEE', name: { not: '' } },
+    include: {
+      enrollments: {
+        include: { course: true },
+      },
+    },
+  })
+
+  const totalCourses = await db.course.count({
+    where: { companyId, isPublished: true },
+  })
 
   const ranked = sellers
-    .map((s) => ({
-      name: s.name,
-      pct: calcCompletionRate(s.certifications.length, productLineCount || 1),
-    }))
+    .filter(s => s.name && s.name.trim() !== '')
+    .map((s) => {
+      const completed = s.enrollments.filter(e => e.completedAt).length
+      const pct = totalCourses > 0 ? Math.round((completed / totalCourses) * 100) : 0
+      return { name: s.name, pct }
+    })
     .sort((a, b) => b.pct - a.pct)
     .slice(0, 8)
 
@@ -38,7 +45,7 @@ export async function SellerRanking({ companyId }: { companyId: string }) {
           const badge = getBadge(seller.pct)
           const idx = i % avatarColors.length
           return (
-            <div key={seller.name} className="flex items-center justify-between">
+            <div key={seller.name + i} className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div
                   className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium flex-shrink-0"

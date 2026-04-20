@@ -3,6 +3,7 @@ import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import { db } from '@/lib/db'
 import { Plus, BookOpen, Users, Layers } from 'lucide-react'
+import { DeleteCourseButton } from './_components/delete-course-button'
 
 export default async function CoursesPage() {
   const { userId } = auth()
@@ -100,46 +101,49 @@ export default async function CoursesPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {courses.map((course) => (
-            <Link
-              key={course.id}
-              href={`/courses/${course.id}`}
-              className="group bg-card border border-border rounded-2xl p-4 md:p-5 hover:border-[#E3001B]/30 hover:shadow-lg transition-all duration-200 flex flex-col"
-            >
-              <div className="flex items-start justify-between mb-4">
-                <div className="w-11 h-11 rounded-xl bg-[#E3001B]/10 flex items-center justify-center flex-shrink-0">
-                  <BookOpen className="w-5 h-5 text-[#E3001B]" />
+            <div key={course.id} className="group relative">
+              <Link
+                href={`/courses/${course.id}`}
+                className="block bg-card border border-border rounded-2xl p-4 md:p-5 hover:border-[#E3001B]/30 hover:shadow-lg transition-all duration-200 flex flex-col"
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <div className="w-11 h-11 rounded-xl bg-[#E3001B]/10 flex items-center justify-center flex-shrink-0">
+                    <BookOpen className="w-5 h-5 text-[#E3001B]" />
+                  </div>
+                  <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${
+                    course.isPublished
+                      ? 'bg-green-50 text-green-700 border border-green-200'
+                      : 'bg-secondary text-muted-foreground border border-border'
+                  }`}>
+                    {course.isPublished ? '● Publicada' : '○ Rascunho'}
+                  </span>
                 </div>
-                <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${
-                  course.isPublished
-                    ? 'bg-green-50 text-green-700 border border-green-200'
-                    : 'bg-secondary text-muted-foreground border border-border'
-                }`}>
-                  {course.isPublished ? '● Publicada' : '○ Rascunho'}
-                </span>
-              </div>
 
-              <div className="flex-1">
-                <h3 className="font-semibold text-base mb-1 group-hover:text-[#E3001B] transition-colors line-clamp-2">
-                  {course.title}
-                </h3>
-                {course.productLine && (
-                  <p className="text-xs text-muted-foreground mb-3 bg-secondary px-2 py-0.5 rounded-md inline-block">
-                    {course.productLine.name}
-                  </p>
-                )}
-              </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-base mb-1 group-hover:text-[#E3001B] transition-colors line-clamp-2">
+                    {course.title}
+                  </h3>
+                  {course.productLine && (
+                    <p className="text-xs text-muted-foreground mb-3 bg-secondary px-2 py-0.5 rounded-md inline-block">
+                      {course.productLine.name}
+                    </p>
+                  )}
+                </div>
 
-              <div className="flex items-center gap-4 pt-4 mt-4 border-t border-border">
-                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <Layers className="w-3.5 h-3.5" />
-                  <span>{course._count.modules} módulos</span>
+                <div className="flex items-center gap-4 pt-4 mt-4 border-t border-border">
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <Layers className="w-3.5 h-3.5" />
+                    <span>{course._count.modules} módulos</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <Users className="w-3.5 h-3.5" />
+                    <span>{course._count.enrollments} matriculados</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <Users className="w-3.5 h-3.5" />
-                  <span>{course._count.enrollments} matriculados</span>
-                </div>
-              </div>
-            </Link>
+              </Link>
+
+              <DeleteCourseButton courseId={course.id} courseTitle={course.title} />
+            </div>
           ))}
         </div>
       )}

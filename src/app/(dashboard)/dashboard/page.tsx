@@ -18,6 +18,9 @@ export default async function DashboardPage() {
   })
 
   if (!dbUser?.company) redirect('/api/seed-company')
+
+  if (dbUser.role === 'EMPLOYEE') redirect('/minha-area')
+
   const company = dbUser!.company
 
   const [totalSellers, activeCourses, enrollments, uncertified, productUpdates] =

@@ -18,9 +18,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
   }
 
   return (
-    <div className="flex h-screen bg-background">
+    <div style={{ display: 'flex', height: '100vh' }}>
       <Sidebar />
-      <main className="flex-1 overflow-y-auto">{children}</main>
+      <main style={{ flex: 1, overflowY: 'auto' }}>{children}</main>
     </div>
   )
 }

@@ -4,6 +4,7 @@ import { db } from '@/lib/db'
 import { getInitials, calcCompletionRate } from '@/lib/utils'
 import Link from 'next/link'
 import { BookOpen, CheckCircle, Play, Star } from 'lucide-react'
+import { RankingTabs } from './_components/ranking-tabs'
 
 export default async function MinhaAreaPage() {
   const { userId } = auth()
@@ -46,6 +47,7 @@ export default async function MinhaAreaPage() {
     include: {
       enrollments: { where: { completedAt: { not: null } } },
       certifications: { where: { passed: true } },
+      quizAttempts: true,
     },
     orderBy: { name: 'asc' },
   })
@@ -53,6 +55,7 @@ export default async function MinhaAreaPage() {
   const totalCourses = courses.length
 
   const ranking = allUsers
+    .filter(u => u.name && u.name.trim() !== '')
     .map(u => ({
       id: u.id,
       name: u.name,
@@ -60,6 +63,28 @@ export default async function MinhaAreaPage() {
       certs: u.certifications.length,
       pct: calcCompletionRate(u.enrollments.length, totalCourses || 1),
     }))
+    .sort((a, b) => b.pct - a.pct)
+
+  const quizRanking = allUsers
+    .filter(u => u.name && u.name.trim() !== '')
+    .map(u => ({
+      id: u.id,
+      name: u.name,
+      completed: u.quizAttempts?.filter(a => a.correct).length ?? 0,
+      total: u.quizAttempts?.length ?? 0,
+      pct: 0,
+    }))
+    .sort((a, b) => b.completed - a.completed)
+
+  const scoreRanking = allUsers
+    .filter(u => u.name && u.name.trim() !== '')
+    .map(u => {
+      const attempts = u.quizAttempts ?? []
+      const total = attempts.length
+      const correct = attempts.filter(a => a.correct).length
+      const pct = total > 0 ? Math.round((correct / total) * 100) : 0
+      return { id: u.id, name: u.name, completed: correct, total, pct }
+    })
     .sort((a, b) => b.pct - a.pct)
 
   const myRank = ranking.findIndex(r => r.id === dbUser.id) + 1
@@ -237,52 +262,12 @@ export default async function MinhaAreaPage() {
         {/* RANKING */}
         <div>
           <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 20 }}>🏆 Ranking da equipe</h2>
-
-          {ranking.length >= 3 && (
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 20, background: 'rgba(255,255,255,0.03)', borderRadius: 16, padding: '24px 16px' }}>
-              {[ranking[1], ranking[0], ranking[2]].map((r, i) => {
-                const medals = ['🥈', '🥇', '🥉']
-                const sizes = [72, 88, 72]
-                const isMe = r?.id === dbUser.id
-                const borderColors = ['#9ca3af', '#f59e0b', '#cd7c2f']
-                return r ? (
-                  <div key={r.id} style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end' }}>
-                    <div style={{ fontSize: 28, marginBottom: 8 }}>{medals[i]}</div>
-                    <div style={{ width: sizes[i], height: sizes[i], borderRadius: '50%', background: isMe ? 'rgba(227,0,27,0.15)' : 'rgba(255,255,255,0.05)', border: `3px solid ${isMe ? '#E3001B' : borderColors[i]}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: i === 1 ? 20 : 16, fontWeight: 800, color: isMe ? '#E3001B' : '#fff', marginBottom: 8 }}>
-                      {getInitials(r.name)}
-                    </div>
-                    <p style={{ fontSize: 13, fontWeight: 600, marginBottom: 2 }}>{r.name.split(' ')[0]} {isMe && <span style={{ color: '#E3001B' }}>(você)</span>}</p>
-                    <p style={{ fontSize: 11, color: '#888' }}>{r.pct}%</p>
-                  </div>
-                ) : <div key={i} />
-              })}
-            </div>
-          )}
-
-          <div style={{ background: '#111', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, overflow: 'hidden' }}>
-            {ranking.map((r, i) => (
-              <div key={r.id} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 20px', borderBottom: i < ranking.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none', background: r.id === dbUser.id ? 'rgba(227,0,27,0.08)' : 'transparent' }}>
-                <div style={{ width: 28, height: 28, borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, background: i === 0 ? '#f59e0b' : i === 1 ? '#9ca3af' : i === 2 ? '#cd7c2f' : 'rgba(255,255,255,0.08)', color: i < 3 ? '#000' : '#888' }}>
-                  {i + 1}
-                </div>
-                <div style={{ width: 36, height: 36, borderRadius: '50%', flexShrink: 0, background: r.id === dbUser.id ? 'rgba(227,0,27,0.2)' : 'rgba(255,255,255,0.05)', border: r.id === dbUser.id ? '2px solid #E3001B' : '2px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, color: r.id === dbUser.id ? '#E3001B' : '#888' }}>
-                  {getInitials(r.name)}
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <p style={{ fontSize: 14, fontWeight: 600, color: r.id === dbUser.id ? '#E3001B' : '#fff' }}>
-                    {r.name} {r.id === dbUser.id && <span style={{ fontSize: 11, opacity: 0.7 }}>(você)</span>}
-                  </p>
-                  <p style={{ fontSize: 11, color: '#666' }}>{r.completed} trilhas concluídas</p>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
-                  <div style={{ width: 80, height: 4, background: 'rgba(255,255,255,0.08)', borderRadius: 99, overflow: 'hidden' }}>
-                    <div style={{ height: '100%', background: r.id === dbUser.id ? '#E3001B' : '#555', borderRadius: 99, width: `${r.pct}%` }} />
-                  </div>
-                  <span style={{ fontSize: 12, fontWeight: 600, color: '#888', width: 32, textAlign: 'right' }}>{r.pct}%</span>
-                </div>
-              </div>
-            ))}
-          </div>
+          <RankingTabs
+            ranking={ranking}
+            quizRanking={quizRanking}
+            scoreRanking={scoreRanking}
+            myId={dbUser.id}
+          />
         </div>
       </div>
     </div>

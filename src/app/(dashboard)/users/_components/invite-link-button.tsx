@@ -1,7 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { createPortal } from 'react-dom'
+import { useState } from 'react'
 import { Copy, Check, Link, X, Share2 } from 'lucide-react'
 
 export function InviteLinkButton() {
@@ -9,9 +8,6 @@ export function InviteLinkButton() {
   const [copied, setCopied] = useState(false)
   const [loading, setLoading] = useState(false)
   const [open, setOpen] = useState(false)
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => { setMounted(true) }, [])
 
   async function generateLink() {
     setLoading(true)
@@ -37,58 +33,6 @@ export function InviteLinkButton() {
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank')
   }
 
-  const modal = (
-    <div
-      style={{ position: 'fixed', inset: 0, zIndex: 9999, backgroundColor: 'rgba(0,0,0,0.75)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}
-      onClick={() => setOpen(false)}
-    >
-      <div
-        style={{ backgroundColor: 'hsl(var(--background))', border: '1px solid hsl(var(--border))', borderRadius: '1rem', width: '100%', maxWidth: '28rem', overflow: 'hidden' }}
-        onClick={e => e.stopPropagation()}
-      >
-        {/* Header */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem 1.5rem', borderBottom: '1px solid hsl(var(--border))' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'hsl(var(--primary) / 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Link style={{ width: 16, height: 16, color: 'hsl(var(--primary))' }} />
-            </div>
-            <h2 style={{ fontSize: '1rem', fontWeight: 600, margin: 0 }}>Link de convite</h2>
-          </div>
-          <button onClick={() => setOpen(false)} style={{ width: 32, height: 32, borderRadius: '50%', border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <X style={{ width: 16, height: 16, color: 'hsl(var(--muted-foreground))' }} />
-          </button>
-        </div>
-
-        {/* Body */}
-        <div style={{ padding: '1.25rem 1.5rem' }}>
-          <p style={{ fontSize: '0.875rem', color: 'hsl(var(--muted-foreground))', marginBottom: '1rem' }}>
-            Compartilhe esse link com seus vendedores. Ao acessar, eles entrarão direto na plataforma da sua empresa.
-          </p>
-
-          {/* Link box */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem', background: 'hsl(var(--muted))', borderRadius: '0.75rem', marginBottom: '1.25rem' }}>
-            <p style={{ fontSize: '0.75rem', flex: 1, wordBreak: 'break-all', fontFamily: 'monospace', margin: 0 }}>{link}</p>
-            <button onClick={copyLink} style={{ flexShrink: 0, width: 32, height: 32, border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              {copied ? <Check style={{ width: 16, height: 16, color: '#22c55e' }} /> : <Copy style={{ width: 16, height: 16 }} />}
-            </button>
-          </div>
-
-          {/* Botões */}
-          <div style={{ display: 'flex', gap: '0.75rem' }}>
-            <button onClick={copyLink} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '0.625rem 1rem', border: '1px solid hsl(var(--border))', borderRadius: '0.75rem', background: 'transparent', cursor: 'pointer', fontSize: '0.875rem', fontWeight: 500 }}>
-              {copied ? <Check style={{ width: 16, height: 16, color: '#22c55e' }} /> : <Copy style={{ width: 16, height: 16 }} />}
-              {copied ? 'Copiado!' : 'Copiar link'}
-            </button>
-            <button onClick={shareWhatsApp} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '0.625rem 1rem', borderRadius: '0.75rem', border: 'none', background: '#22c55e', color: 'white', cursor: 'pointer', fontSize: '0.875rem', fontWeight: 500 }}>
-              <Share2 style={{ width: 16, height: 16 }} />
-              WhatsApp
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-
   return (
     <>
       <button
@@ -100,7 +44,79 @@ export function InviteLinkButton() {
         {loading ? 'Carregando...' : 'Link de convite'}
       </button>
 
-      {mounted && open && link && createPortal(modal, document.body)}
+      {open && link && (
+        <div
+          onClick={() => setOpen(false)}
+          style={{
+            position: 'fixed',
+            top: 0, left: 0, right: 0, bottom: 0,
+            zIndex: 99999,
+            backgroundColor: 'rgba(0,0,0,0.6)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '1rem',
+          }}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            style={{
+              backgroundColor: '#ffffff',
+              borderRadius: '16px',
+              width: '100%',
+              maxWidth: '440px',
+              boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
+              overflow: 'hidden',
+            }}
+          >
+            {/* Header */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 24px', borderBottom: '1px solid #e5e7eb' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{ width: 36, height: 36, borderRadius: '50%', backgroundColor: '#fee2e2', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Link style={{ width: 16, height: 16, color: '#E3001B' }} />
+                </div>
+                <span style={{ fontSize: '16px', fontWeight: 600, color: '#111827' }}>Link de convite</span>
+              </div>
+              <button onClick={() => setOpen(false)} style={{ border: 'none', background: 'transparent', cursor: 'pointer', padding: 4 }}>
+                <X style={{ width: 20, height: 20, color: '#6b7280' }} />
+              </button>
+            </div>
+
+            {/* Body */}
+            <div style={{ padding: '20px 24px' }}>
+              <p style={{ fontSize: '14px', color: '#6b7280', marginBottom: '16px', lineHeight: 1.5 }}>
+                Compartilhe esse link com seus vendedores via WhatsApp. Ao acessar, eles entrarão direto na plataforma da sua empresa.
+              </p>
+
+              {/* Link box */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px', backgroundColor: '#f3f4f6', borderRadius: '10px', marginBottom: '16px' }}>
+                <span style={{ fontSize: '12px', flex: 1, wordBreak: 'break-all', fontFamily: 'monospace', color: '#111827', lineHeight: 1.6 }}>{link}</span>
+                <button onClick={copyLink} style={{ border: 'none', background: 'transparent', cursor: 'pointer', flexShrink: 0, padding: 4 }}>
+                  {copied ? <Check style={{ width: 18, height: 18, color: '#22c55e' }} /> : <Copy style={{ width: 18, height: 18, color: '#6b7280' }} />}
+                </button>
+              </div>
+
+              {/* Botões */}
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <button
+                  onClick={copyLink}
+                  style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '10px 16px', border: '1px solid #e5e7eb', borderRadius: '10px', background: '#ffffff', cursor: 'pointer', fontSize: '14px', fontWeight: 500, color: '#111827' }}
+                >
+                  {copied ? <Check style={{ width: 16, height: 16, color: '#22c55e' }} /> : <Copy style={{ width: 16, height: 16 }} />}
+                  {copied ? 'Copiado!' : 'Copiar link'}
+                </button>
+                <button
+                  onClick={shareWhatsApp}
+                  style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '10px 16px', border: 'none', borderRadius: '10px', background: '#22c55e', cursor: 'pointer', fontSize: '14px', fontWeight: 500, color: '#ffffff' }}
+                >
+                  <Share2 style={{ width: 16, height: 16 }} />
+                  WhatsApp
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   )
 }

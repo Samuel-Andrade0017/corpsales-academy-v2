@@ -1,8 +1,14 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { ArrowLeft, Loader2, Plus, Trash2, Sparkles, ChevronDown, ChevronUp, Upload } from 'lucide-react'
+import { ArrowLeft, Loader2, Plus, Trash2, Sparkles, ChevronDown, ChevronUp, Upload, PenLine, X } from 'lucide-react'
 import Link from 'next/link'
+
+type Question = {
+  text: string
+  options: string[]
+  correctIndex: number
+}
 
 export default function EditCoursePage({ params }: { params: { courseId: string } }) {
   const [loading, setLoading] = useState(false)
@@ -11,16 +17,76 @@ export default function EditCoursePage({ params }: { params: { courseId: string 
   const [newModule, setNewModule] = useState({ title: '', description: '', videoUrl: '' })
   const [addingModule, setAddingModule] = useState(false)
   const [quizContent, setQuizContent] = useState<Record<string, string>>({})
-  const [quizExpanded, setQuizExpanded] = useState<Record<string, boolean>>({})
+  const [quizExpanded, setQuizExpanded] = useState<Record<string, 'ia' | 'manual' | null>>({})
   const [quizLoading, setQuizLoading] = useState<Record<string, boolean>>({})
   const [quizQuestions, setQuizQuestions] = useState<Record<string, any[]>>({})
   const [uploadingVideo, setUploadingVideo] = useState(false)
+
+  // Quiz manual
+  const [manualQuestions, setManualQuestions] = useState<Record<string, Question[]>>({})
+  const [savingManual, setSavingManual] = useState<Record<string, boolean>>({})
 
   useEffect(() => {
     fetch(`/api/courses/${params.courseId}`)
       .then(r => r.json())
       .then(setCourse)
   }, [params.courseId])
+
+  function addManualQuestion(moduleId: string) {
+    setManualQuestions(q => ({
+      ...q,
+      [moduleId]: [...(q[moduleId] || []), { text: '', options: ['', '', '', ''], correctIndex: 0 }]
+    }))
+  }
+
+  function removeManualQuestion(moduleId: string, qi: number) {
+    setManualQuestions(q => ({
+      ...q,
+      [moduleId]: q[moduleId].filter((_, i) => i !== qi)
+    }))
+  }
+
+  function updateQuestion(moduleId: string, qi: number, field: keyof Question, value: any) {
+    setManualQuestions(q => {
+      const updated = [...(q[moduleId] || [])]
+      updated[qi] = { ...updated[qi], [field]: value }
+      return { ...q, [moduleId]: updated }
+    })
+  }
+
+  function updateOption(moduleId: string, qi: number, oi: number, value: string) {
+    setManualQuestions(q => {
+      const updated = [...(q[moduleId] || [])]
+      const options = [...updated[qi].options]
+      options[oi] = value
+      updated[qi] = { ...updated[qi], options }
+      return { ...q, [moduleId]: updated }
+    })
+  }
+
+  async function handleSaveManualQuiz(moduleId: string) {
+    const questions = manualQuestions[moduleId]
+    if (!questions?.length) return
+    const invalid = questions.some(q => !q.text.trim() || q.options.some(o => !o.trim()))
+    if (invalid) { alert('Preencha todas as perguntas e alternativas.'); return }
+
+    setSavingManual(s => ({ ...s, [moduleId]: true }))
+    try {
+      const res = await fetch('/api/quiz/manual', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ moduleId, questions }),
+      })
+      const data = await res.json()
+      if (data.questions) {
+        setQuizQuestions(q => ({ ...q, [moduleId]: data.questions }))
+        setQuizExpanded(q => ({ ...q, [moduleId]: null }))
+        alert('Quiz salvo com sucesso!')
+      }
+    } finally {
+      setSavingManual(s => ({ ...s, [moduleId]: false }))
+    }
+  }
 
   async function handlePublish() {
     setSaving(true)
@@ -79,11 +145,7 @@ export default function EditCoursePage({ params }: { params: { courseId: string 
       formData.append('file', file)
       formData.append('upload_preset', 'corpsales-videos')
       formData.append('resource_type', 'video')
-
-      const res = await fetch(
-        `https://api.cloudinary.com/v1_1/ddjymk09s/video/upload`,
-        { method: 'POST', body: formData }
-      )
+      const res = await fetch(`https://api.cloudinary.com/v1_1/ddjymk09s/video/upload`, { method: 'POST', body: formData })
       const data = await res.json()
       if (data.secure_url) setNewModule(m => ({ ...m, videoUrl: data.secure_url }))
     } finally {
@@ -118,10 +180,7 @@ export default function EditCoursePage({ params }: { params: { courseId: string 
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <h2 className="font-medium text-sm">Módulos ({course.modules?.length || 0})</h2>
-          <button
-            onClick={() => setAddingModule(true)}
-            className="flex items-center gap-1.5 text-xs text-[#E3001B] hover:text-red-700 transition-colors"
-          >
+          <button onClick={() => setAddingModule(true)} className="flex items-center gap-1.5 text-xs text-[#E3001B] hover:text-red-700 transition-colors">
             <Plus className="w-3.5 h-3.5" />
             Adicionar módulo
           </button>
@@ -137,13 +196,23 @@ export default function EditCoursePage({ params }: { params: { courseId: string 
                 {mod.videoUrl && <p className="text-xs text-blue-600 mt-1 truncate">{mod.videoUrl}</p>}
               </div>
               <div className="flex items-center gap-2">
+                {/* Botão Quiz Manual */}
                 <button
-                  onClick={() => setQuizExpanded(q => ({ ...q, [mod.id]: !q[mod.id] }))}
+                  onClick={() => setQuizExpanded(q => ({ ...q, [mod.id]: q[mod.id] === 'manual' ? null : 'manual' }))}
+                  className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 transition-colors"
+                >
+                  <PenLine className="w-3.5 h-3.5" />
+                  Quiz manual
+                  {quizExpanded[mod.id] === 'manual' ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                </button>
+                {/* Botão Quiz IA */}
+                <button
+                  onClick={() => setQuizExpanded(q => ({ ...q, [mod.id]: q[mod.id] === 'ia' ? null : 'ia' }))}
                   className="flex items-center gap-1 text-xs text-purple-600 hover:text-purple-800 transition-colors"
                 >
                   <Sparkles className="w-3.5 h-3.5" />
                   Quiz IA
-                  {quizExpanded[mod.id] ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                  {quizExpanded[mod.id] === 'ia' ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
                 </button>
                 <button onClick={() => handleDeleteModule(mod.id)} className="text-muted-foreground hover:text-red-500 transition-colors">
                   <Trash2 className="w-4 h-4" />
@@ -151,7 +220,77 @@ export default function EditCoursePage({ params }: { params: { courseId: string 
               </div>
             </div>
 
-            {quizExpanded[mod.id] && (
+            {/* QUIZ MANUAL */}
+            {quizExpanded[mod.id] === 'manual' && (
+              <div className="border-t border-border pt-3 space-y-4">
+                <p className="text-xs text-muted-foreground">Crie as perguntas manualmente com até 4 alternativas.</p>
+
+                {(manualQuestions[mod.id] || []).map((q, qi) => (
+                  <div key={qi} className="bg-secondary/30 rounded-lg p-3 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs font-medium text-muted-foreground">Pergunta {qi + 1}</p>
+                      <button onClick={() => removeManualQuestion(mod.id, qi)} className="text-muted-foreground hover:text-red-500">
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                    <input
+                      type="text"
+                      placeholder="Digite a pergunta..."
+                      value={q.text}
+                      onChange={e => updateQuestion(mod.id, qi, 'text', e.target.value)}
+                      className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                    />
+                    <div className="space-y-1.5">
+                      {q.options.map((opt, oi) => (
+                        <div key={oi} className="flex items-center gap-2">
+                          <input
+                            type="radio"
+                            name={`correct-${mod.id}-${qi}`}
+                            checked={q.correctIndex === oi}
+                            onChange={() => updateQuestion(mod.id, qi, 'correctIndex', oi)}
+                            className="accent-green-600"
+                          />
+                          <input
+                            type="text"
+                            placeholder={`Alternativa ${oi + 1}${oi === 0 ? ' (marque o correto ao lado)' : ''}`}
+                            value={opt}
+                            onChange={e => updateOption(mod.id, qi, oi, e.target.value)}
+                            className={`flex-1 border rounded-lg px-3 py-1.5 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-blue-500/20 ${q.correctIndex === oi ? 'border-green-500 bg-green-50/10' : 'border-border'}`}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => addManualQuestion(mod.id)}
+                    className="flex items-center gap-1.5 text-xs text-blue-600 border border-blue-300 px-3 py-1.5 rounded-lg hover:bg-blue-50/10 transition-colors"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    Adicionar pergunta
+                  </button>
+                  {(manualQuestions[mod.id]?.length > 0) && (
+                    <button
+                      onClick={() => handleSaveManualQuiz(mod.id)}
+                      disabled={savingManual[mod.id]}
+                      className="flex items-center gap-1.5 bg-blue-600 text-white text-xs px-4 py-1.5 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                    >
+                      {savingManual[mod.id] ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <PenLine className="w-3.5 h-3.5" />}
+                      {savingManual[mod.id] ? 'Salvando...' : 'Salvar quiz'}
+                    </button>
+                  )}
+                </div>
+
+                {quizQuestions[mod.id] && (
+                  <p className="text-xs text-green-600">✅ {quizQuestions[mod.id].length} perguntas salvas neste módulo.</p>
+                )}
+              </div>
+            )}
+
+            {/* QUIZ IA */}
+            {quizExpanded[mod.id] === 'ia' && (
               <div className="border-t border-border pt-3 space-y-3">
                 <p className="text-xs text-muted-foreground">Cole o conteúdo do módulo e a IA gerará 5 perguntas automaticamente.</p>
                 <textarea
@@ -169,7 +308,6 @@ export default function EditCoursePage({ params }: { params: { courseId: string 
                   {quizLoading[mod.id] ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
                   {quizLoading[mod.id] ? 'Gerando com IA...' : 'Gerar quiz com IA'}
                 </button>
-
                 {quizQuestions[mod.id] && (
                   <div className="space-y-3 mt-2">
                     <p className="text-xs font-medium text-green-600">✅ {quizQuestions[mod.id].length} perguntas geradas com sucesso!</p>
@@ -208,8 +346,6 @@ export default function EditCoursePage({ params }: { params: { courseId: string 
               onChange={e => setNewModule(m => ({ ...m, description: e.target.value }))}
               className="w-full border border-border rounded-lg px-3 py-2 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-[#E3001B]/20 focus:border-[#E3001B]"
             />
-
-            {/* Campo de vídeo com upload */}
             <div className="space-y-2">
               <input
                 type="text"
@@ -220,27 +356,12 @@ export default function EditCoursePage({ params }: { params: { courseId: string 
               />
               <label className="flex items-center gap-2 cursor-pointer w-fit">
                 <div className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border transition-colors ${uploadingVideo ? 'opacity-50 cursor-not-allowed border-border text-muted-foreground' : 'border-purple-300 text-purple-600 hover:bg-purple-50'}`}>
-                  {uploadingVideo
-                    ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Enviando vídeo...</>
-                    : <><Upload className="w-3.5 h-3.5" /> Upload de vídeo</>
-                  }
+                  {uploadingVideo ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Enviando vídeo...</> : <><Upload className="w-3.5 h-3.5" /> Upload de vídeo</>}
                 </div>
-                <input
-                  type="file"
-                  accept="video/*"
-                  className="hidden"
-                  disabled={uploadingVideo}
-                  onChange={e => {
-                    const file = e.target.files?.[0]
-                    if (file) handleVideoUpload(file)
-                  }}
-                />
+                <input type="file" accept="video/*" className="hidden" disabled={uploadingVideo} onChange={e => { const file = e.target.files?.[0]; if (file) handleVideoUpload(file) }} />
               </label>
-              {newModule.videoUrl && (
-                <p className="text-xs text-green-600">✅ Vídeo pronto: {newModule.videoUrl.slice(0, 50)}...</p>
-              )}
+              {newModule.videoUrl && <p className="text-xs text-green-600">✅ Vídeo pronto: {newModule.videoUrl.slice(0, 50)}...</p>}
             </div>
-
             <div className="flex gap-2">
               <button onClick={handleAddModule} disabled={loading || uploadingVideo} className="flex items-center gap-2 bg-[#E3001B] text-white text-sm px-4 py-2 rounded-lg hover:bg-red-700 disabled:opacity-50">
                 {loading && <Loader2 className="w-4 h-4 animate-spin" />}

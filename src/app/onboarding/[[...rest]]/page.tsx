@@ -1,29 +1,29 @@
 ﻿'use client'
 import { CreateOrganization, useOrganizationList } from '@clerk/nextjs'
 import { useEffect, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 
 export default function OnboardingPage() {
   const { userMemberships, setActive, isLoaded } = useOrganizationList({
     userMemberships: { infinite: true },
   })
   const [isEmployee, setIsEmployee] = useState<boolean | null>(null)
-
-  // Verifica se veio de um link de convite
-  useEffect(() => {
-    fetch('/api/check-invite')
-      .then(r => r.json())
-      .then(data => {
-        if (data.companyId) {
-          // É employee — vai direto sem criar org
-          window.location.href = `/api/seed-company?companyId=${data.companyId}&role=EMPLOYEE`
-        } else {
-          setIsEmployee(false)
-        }
-      })
-  }, [])
+  const searchParams = useSearchParams()
 
   useEffect(() => {
-    if (!isLoaded || !setActive || isEmployee === false) return
+    // Tenta pegar o companyId da URL ou do sessionStorage
+    const companyId = searchParams.get('companyId') || sessionStorage.getItem('invite_company_id')
+
+    if (companyId) {
+      sessionStorage.removeItem('invite_company_id')
+      window.location.href = `/api/seed-company?companyId=${companyId}`
+    } else {
+      setIsEmployee(false)
+    }
+  }, [searchParams])
+
+  useEffect(() => {
+    if (!isLoaded || !setActive || isEmployee !== false) return
     if (userMemberships?.data?.length) {
       setActive({ organization: userMemberships.data[0].organization.id })
         .then(() => { window.location.href = '/api/seed-company' })

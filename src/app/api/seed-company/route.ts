@@ -2,7 +2,6 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { clerkClient } from '@clerk/nextjs/server'
-import { cookies } from 'next/headers'
 
 export async function GET(req: Request) {
   const { userId } = auth()
@@ -17,7 +16,7 @@ export async function GET(req: Request) {
   const token = searchParams.get('token')
   const companyId = searchParams.get('companyId')
 
-  // Fluxo por cookie (vendedor veio do link de convite)
+  // Fluxo por companyId (vendedor veio do link de convite)
   if (companyId) {
     const company = await db.company.findUnique({
       where: { id: companyId },
@@ -39,13 +38,10 @@ export async function GET(req: Request) {
       },
     })
 
-    // Limpa o cookie
-    cookies().delete('invite_company_id')
-
     return NextResponse.redirect(new URL('/minha-area', baseUrl))
   }
 
-  // Fluxo por token direto (legado — mantido por compatibilidade)
+  // Fluxo por token direto (legado)
   if (token) {
     const company = await db.company.findUnique({
       where: { inviteToken: token },

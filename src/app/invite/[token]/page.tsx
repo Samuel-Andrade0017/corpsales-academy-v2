@@ -1,49 +1,36 @@
-'use client'
-import { CreateOrganization, useOrganizationList } from '@clerk/nextjs'
-import { useEffect, useState } from 'react'
+import { auth } from '@clerk/nextjs/server'
+import { redirect } from 'next/navigation'
+import { db } from '@/lib/db'
 
-export default function OnboardingPage() {
-  const { userMemberships, setActive, isLoaded } = useOrganizationList({
-    userMemberships: { infinite: true },
+interface Props {
+  params: { token: string }
+}
+
+export default async function InvitePage({ params }: Props) {
+  const { userId } = auth()
+
+  const company = await db.company.findUnique({
+    where: { inviteToken: params.token },
   })
-  const [isEmployee, setIsEmployee] = useState<boolean | null>(null)
-  const [companyId, setCompanyId] = useState<string | null>(null)
 
-  // Verifica se veio de link de convite
-  useEffect(() => {
-    fetch('/api/check-invite')
-      .then(r => r.json())
-      .then(data => {
-        if (data.companyId) {
-          setCompanyId(data.companyId)
-          setIsEmployee(true)
-          window.location.href = `/api/seed-company?companyId=${data.companyId}`
-        } else {
-          setIsEmployee(false)
-        }
-      })
-  }, [])
-
-  // Fluxo normal do admin
-  useEffect(() => {
-    if (!isLoaded || !setActive || isEmployee !== false) return
-    if (userMemberships?.data?.length) {
-      setActive({ organization: userMemberships.data[0].organization.id })
-        .then(() => { window.location.href = '/api/seed-company' })
-    }
-  }, [isLoaded, userMemberships?.data?.length, setActive, isEmployee])
-
-  if (isEmployee === null || isEmployee === true || userMemberships?.data?.length) {
-    return <p className='p-8'>Redirecionando...</p>
+  if (!company) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-red-600">Link inválido</h1>
+          <p className="text-gray-500 mt-2">
+            Este link de convite não existe ou expirou.
+          </p>
+        </div>
+      </div>
+    )
   }
 
-  return (
-    <div className='min-h-screen flex items-center justify-center'>
-      <div className='flex flex-col items-center gap-6 text-center'>
-        <h1 className='text-2xl font-bold'>Bem-vindo ao CorpSales Academy</h1>
-        <p className='text-muted-foreground'>Crie a organização da sua empresa para começar</p>
-        <CreateOrganization afterCreateOrganizationUrl='/api/seed-company' />
-      </div>
-    </div>
-  )
+  // Se já está logado, vincula direto
+  if (userId) {
+    redirect(`/api/seed-company?companyId=${company.id}`)
+  }
+
+  // Manda pro sign-up com companyId na URL
+  redirect(`/sign-up?companyId=${company.id}`)
 }

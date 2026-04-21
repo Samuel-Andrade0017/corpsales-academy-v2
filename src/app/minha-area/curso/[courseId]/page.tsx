@@ -24,32 +24,35 @@ export default function CursoPage() {
       .catch(() => setLoading(false))
   }, [courseId])
 
-  async function handleSubmitQuiz(moduleId: string, questions: any[]) {
-    setSubmitting(moduleId)
-    try {
-      const attempts = questions.map(q => ({
-        questionId: q.id,
-        moduleId,
-        selectedIndex: quizAnswers[q.id] ?? -1,
-        correct: quizAnswers[q.id] === q.correctIndex,
-      }))
+async function handleSubmitQuiz(moduleId: string, questions: any[]) {
+  setSubmitting(moduleId)
+  try {
+    console.log('quizAnswers:', quizAnswers)
+    console.log('questions:', questions.map(q => ({ id: q.id, correctIndex: q.correctIndex })))
 
-      await fetch('/api/quiz/attempt', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ attempts }),
-      })
+    const attempts = questions.map(q => ({
+      questionId: q.id,
+      moduleId,
+      selectedIndex: quizAnswers[q.id] ?? -1,
+      correct: quizAnswers[q.id] === q.correctIndex,
+    }))
 
-      setQuizSubmitted(s => ({ ...s, [moduleId]: true }))
+    console.log('attempts:', attempts)
 
-      // Recarrega dados
-      const res = await fetch(`/api/curso/${courseId}`)
-      const d = await res.json()
-      setData(d)
-    } finally {
-      setSubmitting(null)
-    }
+    await fetch('/api/quiz/attempt', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ attempts }),
+    })
+
+    setQuizSubmitted(s => ({ ...s, [moduleId]: true }))
+    const res = await fetch(`/api/curso/${courseId}`)
+    const d = await res.json()
+    setData(d)
+  } finally {
+    setSubmitting(null)
   }
+}
 
   async function handleComplete(moduleId: string) {
     setCompleting(moduleId)

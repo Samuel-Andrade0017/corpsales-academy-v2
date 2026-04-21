@@ -81,15 +81,6 @@ export default function HomePage() {
         .mock-bar-track { flex: 1; height: 6px; background: var(--dark-4); border-radius: 99px; overflow: hidden; }
         .mock-bar-fill { height: 100%; border-radius: 99px; background: var(--red); }
         .mock-bar-pct { font-size: 11px; color: var(--gray); width: 32px; text-align: right; }
-        .testimonials-bg { background: var(--dark-2); }
-        .testimonials-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 60px; }
-        .testimonial-card { background: var(--dark-3); border: 1px solid var(--border); border-radius: 16px; padding: 32px; }
-        .testimonial-stars { color: #f59e0b; font-size: 14px; margin-bottom: 16px; }
-        .testimonial-text { font-size: 15px; color: var(--gray-light); line-height: 1.7; margin-bottom: 24px; font-style: italic; }
-        .testimonial-author { display: flex; align-items: center; gap: 12px; }
-        .author-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--red); display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; flex-shrink: 0; }
-        .author-name { font-size: 14px; font-weight: 500; }
-        .author-role { font-size: 12px; color: var(--gray); }
         .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 60px; }
         .pricing-card { background: var(--dark-3); border: 1px solid var(--border); border-radius: 16px; padding: 36px; position: relative; }
         .pricing-card.featured { border-color: var(--red); background: linear-gradient(135deg, rgba(227,0,27,0.08) 0%, var(--dark-3) 60%); }
@@ -138,8 +129,6 @@ export default function HomePage() {
           .preview-wrap { grid-template-columns: 1fr; gap: 40px; margin-top: 40px; }
           .dashboard-mock { padding: 16px; }
           .mock-card-val { font-size: 22px; }
-          .testimonials-grid { grid-template-columns: 1fr; gap: 16px; margin-top: 40px; }
-          .testimonial-card { padding: 24px; }
           .pricing-grid { grid-template-columns: 1fr; gap: 24px; margin-top: 40px; }
           .pricing-card { padding: 28px; }
           .pricing-card.featured { margin-top: 12px; }
@@ -191,8 +180,7 @@ export default function HomePage() {
             {[
               { num: '3x', label: 'mais rápido no onboarding' },
               { num: '87%', label: 'taxa de conclusão média' },
-              { num: '200+', label: 'vendedores treinados' },
-              { num: 'R$997', label: 'custo médio/vendedor no Brasil' },
+              { num: '5min', label: 'para configurar e começar' },
             ].map((s) => (
               <div key={s.label} className="stat">
                 <div className="stat-num"><span className="red">{s.num}</span></div>
@@ -302,32 +290,6 @@ export default function HomePage() {
                 ))}
               </div>
             </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="testimonials-bg">
-        <div className="section-inner">
-          <p className="section-tag">Depoimentos</p>
-          <h2>Quem usa <span className="red">recomenda</span></h2>
-          <div className="testimonials-grid">
-            {[
-              { initials: 'MR', name: 'Marcos Ribeiro', role: 'Gerente Comercial · Autorizada Claro', text: '"Antes levávamos 3 semanas para treinar um vendedor novo. Com o CorpSales Academy, em 3 dias ele já estava certificado e pronto para vender."' },
-              { initials: 'AP', name: 'Ana Paula Torres', role: 'Diretora de Vendas · Distribuidora TIM', text: '"O ranking de quizzes mudou tudo. Os vendedores competem para ser o primeiro do ranking e acabam revisando o conteúdo por conta própria."' },
-              { initials: 'LS', name: 'Luciana Souza', role: 'CEO · Revendedora Vivo', text: '"Simples de usar, em português, e o gestor consegue criar o treinamento sozinho. Não precisamos de nenhum suporte técnico para começar."' },
-            ].map((t) => (
-              <div key={t.name} className="testimonial-card">
-                <div className="testimonial-stars">★★★★★</div>
-                <p className="testimonial-text">{t.text}</p>
-                <div className="testimonial-author">
-                  <div className="author-avatar">{t.initials}</div>
-                  <div>
-                    <div className="author-name">{t.name}</div>
-                    <div className="author-role">{t.role}</div>
-                  </div>
-                </div>
-              </div>
-            ))}
           </div>
         </div>
       </section>

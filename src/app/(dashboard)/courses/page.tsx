@@ -98,7 +98,7 @@ export default async function CoursesPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {courses.map((course) => (
-            <div key={course.id} className="group relative">
+            <div key={course.id} style={{ position: 'relative' }}>
               <Link
                 href={`/courses/${course.id}`}
                 className="block bg-card border border-border rounded-2xl p-4 md:p-5 hover:border-[#E3001B]/30 hover:shadow-lg transition-all duration-200 flex flex-col"
@@ -117,7 +117,7 @@ export default async function CoursesPage() {
                 </div>
 
                 <div className="flex-1">
-                  <h3 className="font-semibold text-base mb-1 group-hover:text-[#E3001B] transition-colors line-clamp-2">
+                  <h3 className="font-semibold text-base mb-1 line-clamp-2">
                     {course.title}
                   </h3>
                   {course.productLine && (
@@ -127,20 +127,22 @@ export default async function CoursesPage() {
                   )}
                 </div>
 
-                <div className="flex items-center justify-between pt-4 mt-4 border-t border-border">
-                  <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                      <Layers className="w-3.5 h-3.5" />
-                      <span>{course._count.modules} módulos</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                      <Users className="w-3.5 h-3.5" />
-                      <span>{course._count.enrollments} matriculados</span>
-                    </div>
+                <div className="flex items-center gap-4 pt-4 mt-4 border-t border-border">
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <Layers className="w-3.5 h-3.5" />
+                    <span>{course._count.modules} módulos</span>
                   </div>
-                  <DeleteCourseButton courseId={course.id} courseTitle={course.title} />
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <Users className="w-3.5 h-3.5" />
+                    <span>{course._count.enrollments} matriculados</span>
+                  </div>
                 </div>
               </Link>
+
+              {/* Botão fora do Link para não navegar ao clicar */}
+              <div style={{ position: 'absolute', bottom: 16, right: 16 }}>
+                <DeleteCourseButton courseId={course.id} courseTitle={course.title} />
+              </div>
             </div>
           ))}
         </div>

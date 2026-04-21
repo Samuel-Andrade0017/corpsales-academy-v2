@@ -31,7 +31,6 @@ export default async function CoursesPage() {
 
   return (
     <div className="p-4 md:p-6">
-      {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-xl md:text-2xl font-semibold tracking-tight">Trilhas de treinamento</h1>
@@ -47,7 +46,6 @@ export default async function CoursesPage() {
         </Link>
       </div>
 
-      {/* Stats */}
       {courses.length > 0 && (
         <div className="grid grid-cols-3 gap-3 mb-6">
           <div className="bg-card border border-border rounded-xl p-3 md:p-4 flex flex-col md:flex-row items-center md:items-center gap-2 md:gap-4">
@@ -80,7 +78,6 @@ export default async function CoursesPage() {
         </div>
       )}
 
-      {/* Empty state */}
       {courses.length === 0 ? (
         <div className="border border-dashed border-border rounded-2xl p-12 text-center">
           <div className="w-16 h-16 rounded-2xl bg-[#E3001B]/10 flex items-center justify-center mx-auto mb-4">
@@ -130,19 +127,20 @@ export default async function CoursesPage() {
                   )}
                 </div>
 
-                <div className="flex items-center gap-4 pt-4 mt-4 border-t border-border">
-                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                    <Layers className="w-3.5 h-3.5" />
-                    <span>{course._count.modules} módulos</span>
+                <div className="flex items-center justify-between pt-4 mt-4 border-t border-border">
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <Layers className="w-3.5 h-3.5" />
+                      <span>{course._count.modules} módulos</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <Users className="w-3.5 h-3.5" />
+                      <span>{course._count.enrollments} matriculados</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                    <Users className="w-3.5 h-3.5" />
-                    <span>{course._count.enrollments} matriculados</span>
-                  </div>
+                  <DeleteCourseButton courseId={course.id} courseTitle={course.title} />
                 </div>
               </Link>
-
-              <DeleteCourseButton courseId={course.id} courseTitle={course.title} />
             </div>
           ))}
         </div>

@@ -112,7 +112,15 @@ async function handleSubmitQuiz(moduleId: string, questions: any[]) {
           <div style={{ background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.3)', borderRadius: 16, padding: '20px 24px', marginBottom: 24, textAlign: 'center' }}>
             <p style={{ fontSize: 24, marginBottom: 8 }}>🎉</p>
             <p style={{ fontWeight: 700, fontSize: 18, marginBottom: 4, color: '#22c55e' }}>Trilha concluída!</p>
-            <p style={{ fontSize: 14, color: '#888' }}>Parabéns! Você completou todos os módulos desta trilha.</p>
+            <p style={{ fontSize: 14, color: '#888', marginBottom: 16 }}>Parabéns! Você completou todos os módulos desta trilha.</p>
+            <div style={{ display: 'flex', justifyContent: 'center' }}>
+              <CertificateButton
+                vendorName={data?.userName || 'Vendedor'}
+                courseTitle={course.title}
+                companyName={data?.companyName || 'Empresa'}
+                completedAt={enrollment?.completedAt || new Date().toISOString()}
+              />
+            </div>
           </div>
         )}
 

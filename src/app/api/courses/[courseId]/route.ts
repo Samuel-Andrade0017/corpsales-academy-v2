@@ -60,3 +60,35 @@ export async function PATCH(
     return new NextResponse('Erro interno', { status: 500 })
   }
 }
+export async function DELETE(
+  req: Request,
+  { params }: { params: { courseId: string } }
+) {
+  try {
+    const { userId } = auth()
+    if (!userId) return new NextResponse('Não autorizado', { status: 401 })
+
+    const dbUser = await db.user.findUnique({
+      where: { clerkId: userId },
+      include: { company: true },
+    })
+    if (!dbUser?.company) return new NextResponse('Empresa não encontrada', { status: 404 })
+
+    const course = await db.course.findUnique({
+      where: { id: params.courseId },
+    })
+
+    if (!course || course.companyId !== dbUser.company.id) {
+      return new NextResponse('Não encontrado', { status: 404 })
+    }
+
+    await db.course.delete({
+      where: { id: params.courseId },
+    })
+
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.error('[COURSE_DELETE]', error)
+    return new NextResponse('Erro interno', { status: 500 })
+  }
+}

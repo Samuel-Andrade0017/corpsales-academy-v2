@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { ArrowLeft, Loader2, Plus, Trash2, Sparkles, ChevronDown, ChevronUp, Upload, PenLine, X } from 'lucide-react'
+import { ArrowLeft, Loader2, Plus, Trash2, Sparkles, Upload, PenLine, X } from 'lucide-react'
 import Link from 'next/link'
 
 type Question = {
@@ -21,8 +21,6 @@ export default function EditCoursePage({ params }: { params: { courseId: string 
   const [quizLoading, setQuizLoading] = useState<Record<string, boolean>>({})
   const [quizQuestions, setQuizQuestions] = useState<Record<string, any[]>>({})
   const [uploadingVideo, setUploadingVideo] = useState(false)
-
-  // Quiz manual
   const [manualQuestions, setManualQuestions] = useState<Record<string, Question[]>>({})
   const [savingManual, setSavingManual] = useState<Record<string, boolean>>({})
 
@@ -190,32 +188,31 @@ export default function EditCoursePage({ params }: { params: { courseId: string 
           <div key={mod.id} className="bg-card border border-border rounded-xl p-4 space-y-3">
             <div className="flex items-start gap-3">
               <div className="w-7 h-7 rounded-lg bg-secondary flex items-center justify-center text-xs font-medium flex-shrink-0">{i + 1}</div>
-              <div className="flex-1">
+              <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium">{mod.title}</p>
                 {mod.description && <p className="text-xs text-muted-foreground mt-0.5">{mod.description}</p>}
                 {mod.videoUrl && <p className="text-xs text-blue-600 mt-1 truncate">{mod.videoUrl}</p>}
               </div>
-              <div className="flex items-center gap-2">
-                {/* Botão Quiz Manual */}
+              <div className="flex items-center gap-2 flex-shrink-0">
                 <button
                   onClick={() => setQuizExpanded(q => ({ ...q, [mod.id]: q[mod.id] === 'manual' ? null : 'manual' }))}
-                  className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 transition-colors"
+                  style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 6, border: '1px solid #bfdbfe', background: quizExpanded[mod.id] === 'manual' ? '#dbeafe' : 'transparent', color: '#2563eb', fontSize: 12, fontWeight: 500, cursor: 'pointer', whiteSpace: 'nowrap' }}
                 >
-                  <PenLine className="w-3.5 h-3.5" />
+                  <PenLine style={{ width: 12, height: 12 }} />
                   Quiz manual
-                  {quizExpanded[mod.id] === 'manual' ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
                 </button>
-                {/* Botão Quiz IA */}
                 <button
                   onClick={() => setQuizExpanded(q => ({ ...q, [mod.id]: q[mod.id] === 'ia' ? null : 'ia' }))}
-                  className="flex items-center gap-1 text-xs text-purple-600 hover:text-purple-800 transition-colors"
+                  style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 6, border: '1px solid #e9d5ff', background: quizExpanded[mod.id] === 'ia' ? '#f3e8ff' : 'transparent', color: '#7c3aed', fontSize: 12, fontWeight: 500, cursor: 'pointer', whiteSpace: 'nowrap' }}
                 >
-                  <Sparkles className="w-3.5 h-3.5" />
+                  <Sparkles style={{ width: 12, height: 12 }} />
                   Quiz IA
-                  {quizExpanded[mod.id] === 'ia' ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
                 </button>
-                <button onClick={() => handleDeleteModule(mod.id)} className="text-muted-foreground hover:text-red-500 transition-colors">
-                  <Trash2 className="w-4 h-4" />
+                <button
+                  onClick={() => handleDeleteModule(mod.id)}
+                  style={{ width: 28, height: 28, border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#9ca3af', borderRadius: 6 }}
+                >
+                  <Trash2 style={{ width: 14, height: 14 }} />
                 </button>
               </div>
             </div>

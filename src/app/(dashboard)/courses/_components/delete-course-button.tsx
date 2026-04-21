@@ -24,8 +24,7 @@ export function DeleteCourseButton({ courseId, courseTitle }: { courseId: string
     <>
       <button
         onClick={e => { e.preventDefault(); e.stopPropagation(); setOpen(true) }}
-        style={{ position: 'absolute', top: 12, right: 12, width: 32, height: 32, borderRadius: '8px', border: 'none', background: 'rgba(227,0,27,0.1)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0, transition: 'opacity 0.2s' }}
-        className="delete-btn"
+        style={{ position: 'absolute', top: 12, right: 12, width: 32, height: 32, borderRadius: '8px', border: 'none', background: 'rgba(227,0,27,0.1)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
       >
         <Trash2 style={{ width: 14, height: 14, color: '#E3001B' }} />
       </button>
@@ -81,8 +80,6 @@ export function DeleteCourseButton({ courseId, courseTitle }: { courseId: string
           </div>
         </div>
       )}
-
-      <style>{`.delete-btn { opacity: 0 } .group:hover .delete-btn { opacity: 1 }`}</style>
     </>
   )
 }

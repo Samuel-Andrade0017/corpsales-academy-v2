@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { ArrowLeft, BookOpen, CheckCircle, Loader2, ChevronDown, ChevronUp } from 'lucide-react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
+import { CertificateButton } from './_components/certificate-button'
 
 export default function CursoPage() {
   const params = useParams()
